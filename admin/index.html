@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — Inferno Photography</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="login-page">
+
+  <!-- ══════════════════════════════
+       LOGIN CARD
+  ══════════════════════════════ -->
+  <div class="login-card">
+
+    <!-- Brand -->
+    <p class="login-logo"><span>Inferno</span> Photography</p>
+    <p class="login-subtitle">Studio Administration Panel</p>
+
+    <h2>Sign in</h2>
+
+    <!-- Error message -->
+    <div class="login-error" id="loginError">
+      Incorrect username or password. Please try again.
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" onsubmit="handleLogin(event)">
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          placeholder="admin"
+          autocomplete="username"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn--primary">Sign In →</button>
+
+    </form>
+
+    <!-- Demo Credentials — clearly labelled -->
+    <div class="login-demo">
+      <p>Username: <code>admin</code></p>
+      <p>Password: <code>inferno123</code></p>
+      <span class="demo-warning">⚠ Demo only — not secure</span>
+    </div>
+
+  </div>
+
+
+  <script src="admin.js"></script>
+  <script>
+    /* Redirect if already logged in */
+    if (sessionStorage.getItem('inferno_admin_auth') === 'true') {
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inferno Photography — Cinematic Frames. Honest Moments.</title>
+  <meta name="description" content="Inferno Photography — Cinematic portrait, editorial, and event photography. Burned into memory." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════
+       HEADER — Sticky Navigation
+  ══════════════════════════════ -->
+  <header class="header">
+    <div class="container">
+      <div class="header__inner">
+
+        <!-- Logo -->
+        <a href="index.html" class="header__logo">
+          <span>Inferno</span> Photography
+        </a>
+
+        <!-- Desktop Nav -->
+        <nav class="header__nav" id="mainNav" aria-label="Main navigation">
+          <a href="#work">Work</a>
+          <a href="#about">About</a>
+          <a href="#services">Services</a>
+          <a href="#testimonials">Testimonials</a>
+          <a href="#contact">Contact</a>
+          <a href="admin/index.html" style="color: var(--grey-400); font-size:0.8rem;">Admin</a>
+          <a href="#contact" class="btn btn--primary header__cta">Book a Shoot</a>
+        </nav>
+
+        <!-- Mobile Toggle -->
+        <button class="header__toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ══════════════════════════════
+       HERO SECTION
+  ══════════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero__inner">
+
+        <!-- Text Column -->
+        <div class="hero__text">
+          <div class="hero__badge">
+            Available for: Portrait &bull; Editorial &bull; Events
+          </div>
+
+          <h1 class="hero__title">
+            Inferno<br>
+            <em>Photography</em>
+          </h1>
+
+          <p class="hero__sub">
+            Cinematic frames. Honest moments.<br>
+            Burned into memory.
+          </p>
+
+          <div class="hero__actions">
+            <a href="#work" class="btn btn--primary">View the Work</a>
+            <a href="#contact" class="btn btn--outline">Get in Touch</a>
+          </div>
+        </div>
+
+        <!-- Image Column -->
+        <div class="hero__image-wrap">
+          <div class="hero__image-card">
+            <img
+              src="img/snow.jpg"
+              alt="Cinematic portrait in snow — Inferno Photography"
+              loading="eager"
+            />
+          </div>
+
+          <!-- Floating stat tag -->
+          <div class="hero__float-tag">
+            <p>Based in</p>
+            <strong>Kilifi, Kenya</strong>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════
+       GALLERY / WORK SECTION
+  ══════════════════════════════ -->
+  <section class="gallery section" id="work">
+    <div class="container">
+
+      <div class="gallery__header">
+        <div>
+          <span class="section-label">The Work</span>
+          <h2 class="section-title">Selected Portfolio</h2>
+        </div>
+        <a href="#contact" class="btn btn--outline">Commission a Project</a>
+      </div>
+
+      <!-- Filter Bar -->
+      <div class="gallery__filters" role="group" aria-label="Gallery filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="portrait">Portrait</button>
+        <button class="filter-btn" data-filter="nature">Nature</button>
+        <button class="filter-btn" data-filter="editorial">Editorial</button>
+        <button class="filter-btn" data-filter="event">Event</button>
+      </div>
+
+      <!-- Masonry Grid -->
+      <div class="gallery__grid" id="galleryGrid">
+
+        <div class="gallery__item" data-category="portrait">
+          <figure>
+            <img src="img/potrait.jpg" alt="Intimate portrait session" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>Soft Focus</h4>
+                <span class="pill">Portrait</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery__item" data-category="nature">
+          <figure>
+            <img src="img/beach.jpg" alt="Beach at golden hour" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>Golden Shore</h4>
+                <span class="pill">Nature</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery__item" data-category="portrait">
+          <figure>
+            <img src="img/potrait1.jpg" alt="Studio portrait" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>Studio Light</h4>
+                <span class="pill">Portrait</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery__item" data-category="nature">
+          <figure>
+            <img src="img/nature.jpg" alt="Forest landscape" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>Into the Wild</h4>
+                <span class="pill">Nature</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery__item" data-category="editorial">
+          <figure>
+            <img src="img/mirror.jpg" alt="Editorial mirror shot" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>Reflections</h4>
+                <span class="pill">Editorial</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery__item" data-category="nature">
+          <figure>
+            <img src="img/nature2.jpg" alt="Nature detail" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>Still Life</h4>
+                <span class="pill">Nature</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery__item" data-category="portrait">
+          <figure>
+            <img src="img/potrait2.jpg" alt="Candid portrait" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>Candid</h4>
+                <span class="pill">Portrait</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery__item" data-category="event">
+          <figure>
+            <img src="img/behind.jpg" alt="Behind the scenes event" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>Behind the Scene</h4>
+                <span class="pill">Event</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery__item" data-category="nature">
+          <figure>
+            <img src="img/pexels-jplenio-1103970.jpg" alt="Sunrise landscape" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>First Light</h4>
+                <span class="pill">Nature</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery__item" data-category="editorial">
+          <figure>
+            <img src="img/heart.jpg" alt="Artistic editorial" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>Pulse</h4>
+                <span class="pill">Editorial</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery__item" data-category="nature">
+          <figure>
+            <img src="img/nature3.jpg" alt="Mountain nature scene" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>Altitude</h4>
+                <span class="pill">Nature</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery__item" data-category="editorial">
+          <figure>
+            <img src="img/work.jpg" alt="Editorial work shot" loading="lazy" />
+            <figcaption class="gallery__overlay">
+              <div class="gallery__caption">
+                <h4>The Work</h4>
+                <span class="pill">Editorial</span>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+
+      </div><!-- /gallery__grid -->
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════
+       FEATURED SERIES
+  ══════════════════════════════ -->
+  <section class="featured section--grey" id="featured">
+    <div class="container">
+
+      <span class="section-label">Featured Series</span>
+      <h2 class="section-title">Curated Collections</h2>
+
+      <!-- Series 1 -->
+      <div class="featured__block reveal" style="margin-top: var(--sp-8);">
+        <div class="featured__img">
+          <img src="img/beach3.jpg" alt="Coastal Solitude series" />
+        </div>
+        <div class="featured__text">
+          <span class="section-label">Series 01</span>
+          <h3 class="section-title">Coastal Solitude</h3>
+          <p>
+            A meditative journey along Kenya's coastline, exploring the intimate relationship between solitude and the sea. Shot across three tides in Kilifi County, this series captures the in-between moments that most eyes miss.
+          </p>
+          <p>
+            Natural light only. No retouching. Pure presence.
+          </p>
+          <a href="#contact" class="link-ember">See full series</a>
+        </div>
+      </div>
+
+      <!-- Series 2 — reversed layout -->
+      <div class="featured__block featured__block--reverse reveal" style="margin-top: var(--sp-10);">
+        <div class="featured__img">
+          <img src="img/nature1.jpg" alt="Urban Fragments series" />
+        </div>
+        <div class="featured__text">
+          <span class="section-label">Series 02</span>
+          <h3 class="section-title">Urban Fragments</h3>
+          <p>
+            Architecture speaks when people are absent. This editorial series documents forgotten geometry—fractured walls, angular shadows, the language written in concrete and rust.
+          </p>
+          <p>
+            Shot along the Kilifi coast over 18 months. 60 frames. 12 selected.
+          </p>
+          <a href="#contact" class="link-ember">See full series</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════
+       ABOUT SECTION
+  ══════════════════════════════ -->
+  <section class="about section" id="about">
+    <div class="container">
+      <div class="about__inner">
+
+        <!-- Portrait -->
+        <div class="about__portrait reveal">
+          <div class="about__portrait-img">
+            <img src="img/beach4.jpg" alt="Photographer — Inferno Photography" />
+          </div>
+          <div class="about__portrait-sig">
+            <p>Lead Photographer</p>
+            <strong>Alex Wangari</strong>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="about__content reveal">
+          <span class="section-label">About</span>
+          <h2 class="section-title">Light is the medium.<br>Truth is the subject.</h2>
+
+          <p>
+            I started Inferno Photography in 2017 with a secondhand DSLR and a single conviction: that every person, place, and passing moment holds a frame worth preserving. Since then, I've shot across the Kenyan coast, documented intimate family stories, and collaborated with brands that believe in the power of visual honesty.
+          </p>
+
+          <p>
+            My approach is unhurried and observational. I don't direct so much as I witness—creating space for genuine moments to emerge, then catching them before they disappear. The name Inferno isn't about spectacle. It's about intensity of attention.
+          </p>
+
+          <p>
+            <strong>Artistic philosophy:</strong> Every image should feel like something someone lived, not something someone posed for.
+          </p>
+
+          <div class="about__skills">
+            <span class="skill-tag">Sony Alpha</span>
+            <span class="skill-tag">Lightroom</span>
+            <span class="skill-tag">Capture One</span>
+            <span class="skill-tag">Film Photography</span>
+            <span class="skill-tag">Natural Light</span>
+            <span class="skill-tag">Studio Lighting</span>
+            <span class="skill-tag">Drone Aerial</span>
+            <span class="skill-tag">Post-Production</span>
+          </div>
+
+          <p style="margin-bottom: var(--sp-3);">
+            <strong>Clients include:</strong> Independent brands, NGOs, hospitality groups, private families, editorial publications across the Kenyan coast and beyond.
+          </p>
+
+          <a href="#" class="btn btn--outline" download>
+            ↓ Download Portfolio PDF
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════
+       WHY PORTFOLIOS MATTER
+  ══════════════════════════════ -->
+  <section class="why section--grey section" id="why">
+    <div class="container">
+      <div class="why__inner">
+
+        <!-- Narrative Left -->
+        <div class="why__narrative reveal">
+          <span class="section-label">Why it Matters</span>
+          <h2 class="section-title">Your portfolio is your first conversation.</h2>
+          <p>
+            Before a client reads your bio or checks your pricing, they look. They feel. A photography portfolio is not just a collection of images—it's a declaration of vision, a statement of trust, and a preview of the experience you'll deliver.
+          </p>
+          <p>
+            In an attention economy, a strong visual identity separates the memorable from the overlooked. The right portfolio doesn't just attract clients—it attracts the <em>right</em> clients.
+          </p>
+        </div>
+
+        <!-- Points Right -->
+        <div class="why__points reveal">
+          <div class="why__point">
+            <span class="why__num">01</span>
+            <div class="why__point-text">
+              <h4>Showcase Vision</h4>
+              <p>Communicate your unique artistic perspective before a single word is exchanged.</p>
+            </div>
+          </div>
+          <div class="why__point">
+            <span class="why__num">02</span>
+            <div class="why__point-text">
+              <h4>Attract Clients</h4>
+              <p>Quality work presented with intention draws higher-quality inquiries and projects.</p>
+            </div>
+          </div>
+          <div class="why__point">
+            <span class="why__num">03</span>
+            <div class="why__point-text">
+              <h4>Establish Authority</h4>
+              <p>A curated, professional portfolio signals credibility and expertise immediately.</p>
+            </div>
+          </div>
+          <div class="why__point">
+            <span class="why__num">04</span>
+            <div class="why__point-text">
+              <h4>Reflect Growth</h4>
+              <p>Your portfolio is a living document—updated as your craft and career evolve.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════
+       BENEFITS SECTION
+  ══════════════════════════════ -->
+  <section class="benefits section" id="benefits">
+    <div class="container">
+      <div style="text-align: center; max-width: 560px; margin: 0 auto;">
+        <span class="section-label">The Benefits</span>
+        <h2 class="section-title">Why choose professional photography</h2>
+      </div>
+
+      <div class="benefits__grid">
+
+        <div class="benefit-card reveal">
+          <span class="benefit-card__icon">⬛</span>
+          <h3>Structured Presentation</h3>
+          <p>Every deliverable is intentionally sequenced, color-graded, and presented in a way that tells a coherent visual story.</p>
+        </div>
+
+        <div class="benefit-card reveal">
+          <span class="benefit-card__icon">◈</span>
+          <h3>Customization</h3>
+          <p>Each project is approached fresh. Lighting, mood, and style are adapted to match your brand or personal aesthetic perfectly.</p>
+        </div>
+
+        <div class="benefit-card reveal">
+          <span class="benefit-card__icon">◻</span>
+          <h3>Professional Appearance</h3>
+          <p>Industry-standard equipment, post-processing, and delivery workflows ensure your images meet publication-grade quality.</p>
+        </div>
+
+        <div class="benefit-card reveal">
+          <span class="benefit-card__icon">◇</span>
+          <h3>Versatility</h3>
+          <p>From intimate portraits to large-scale editorial shoots, every session is handled with the same attention and care.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════
+       SERVICES & PRICING
+  ══════════════════════════════ -->
+  <section class="services section--grey section" id="services">
+    <div class="container">
+      <div>
+        <span class="section-label">Services</span>
+        <h2 class="section-title">Photography Sessions</h2>
+        <p class="section-sub">Transparent pricing. No hidden fees. Every session includes a dedicated creative consultation.</p>
+      </div>
+
+      <div class="services__grid">
+
+        <!-- Portrait -->
+        <div class="service-card reveal">
+          <p class="service-card__type">Individual</p>
+          <h3>Portrait Session</h3>
+          <p style="font-size: 0.9rem; color: var(--grey-400);">For individuals, families, and personal brands.</p>
+          <div class="service-card__price">KES 15,000 <span>starting</span></div>
+          <hr />
+          <ul>
+            <li>2-hour on-location session</li>
+            <li>30+ edited digital images</li>
+            <li>Online gallery delivery</li>
+            <li>1 round of revision</li>
+            <li>Commercial use license</li>
+          </ul>
+          <p class="service-card__turnaround">⏱ Delivery in 5–7 business days</p>
+          <a href="#contact" class="link-ember">Book this session</a>
+        </div>
+
+        <!-- Brand Editorial — Featured -->
+        <div class="service-card service-card--featured reveal">
+          <p class="service-card__type">Brand</p>
+          <h3>Brand Editorial</h3>
+          <p style="font-size: 0.9rem; color: var(--grey-400);">For businesses, startups, and creative studios.</p>
+          <div class="service-card__price">KES 45,000 <span>starting</span></div>
+          <hr />
+          <ul>
+            <li>Full-day shoot (up to 8 hrs)</li>
+            <li>100+ edited digital images</li>
+            <li>Art direction + mood boarding</li>
+            <li>Social media crop exports</li>
+            <li>2 rounds of revisions</li>
+            <li>Extended commercial license</li>
+          </ul>
+          <p class="service-card__turnaround">⏱ Delivery in 7–10 business days</p>
+          <a href="#contact" class="link-ember">Book this session</a>
+        </div>
+
+        <!-- Event Coverage -->
+        <div class="service-card reveal">
+          <p class="service-card__type">Events</p>
+          <h3>Event Coverage</h3>
+          <p style="font-size: 0.9rem; color: var(--grey-400);">Weddings, launches, galas, and experiences.</p>
+          <div class="service-card__price">KES 60,000 <span>starting</span></div>
+          <hr />
+          <ul>
+            <li>Full event coverage</li>
+            <li>200+ edited digital images</li>
+            <li>Candid + styled documentary</li>
+            <li>Private online gallery</li>
+            <li>Print-ready files included</li>
+            <li>Optional same-day previews</li>
+          </ul>
+          <p class="service-card__turnaround">⏱ Delivery in 10–14 business days</p>
+          <a href="#contact" class="link-ember">Book this session</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════
+       TESTIMONIALS
+  ══════════════════════════════ -->
+  <section class="testimonials section" id="testimonials">
+    <div class="container">
+      <div style="text-align: center; max-width: 520px; margin: 0 auto;">
+        <span class="section-label">Testimonials</span>
+        <h2 class="section-title">What clients say</h2>
+      </div>
+
+      <div class="testimonials__grid" id="testimonialsGrid">
+
+        <div class="testimonial-card reveal">
+          <div class="testimonial-card__quote">"</div>
+          <p>Working with Inferno Photography was unlike anything I'd experienced before. Alex has an uncanny ability to capture moments that feel genuinely lived — not staged. Our brand campaign exceeded every expectation.</p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar">A</div>
+            <div>
+              <p class="testimonial-card__name">Amara Osei</p>
+              <p class="testimonial-card__role">Creative Director, Lumi Brands</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal">
+          <div class="testimonial-card__quote">"</div>
+          <p>The portrait session for our team was seamless. Professional, warm, and the results were stunning. Our new website photos have drawn compliments from every client we've shown them to.</p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar">N</div>
+            <div>
+              <p class="testimonial-card__name">Njeri Kimani</p>
+              <p class="testimonial-card__role">Founder, Savanna Collective</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal">
+          <div class="testimonial-card__quote">"</div>
+          <p>I've had photographers at events before, but Alex delivers something different — editorial-quality coverage with documentary-style honesty. Every image tells the full story of what we built that evening.</p>
+          <div class="testimonial-card__author">
+            <div class="testimonial-card__avatar">T</div>
+            <div>
+              <p class="testimonial-card__name">Tobias Mwenda</p>
+              <p class="testimonial-card__role">Events Lead, Nairobi Design Week</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════
+       CONTACT SECTION
+  ══════════════════════════════ -->
+  <section class="contact section--grey section" id="contact">
+    <div class="container">
+      <div>
+        <span class="section-label">Contact</span>
+        <h2 class="section-title">Let's create something.</h2>
+      </div>
+
+      <div class="contact__inner" style="margin-top: var(--sp-8);">
+
+        <!-- Form -->
+        <div class="contact-form reveal">
+          <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: normal; margin-bottom: var(--sp-4);">Send a Message</h3>
+
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" placeholder="Your name" autocomplete="name" />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="your@email.com" autocomplete="email" />
+          </div>
+
+          <div class="form-group">
+            <label for="service">Project Type</label>
+            <select id="service" name="service">
+              <option value="">Select a service...</option>
+              <option value="portrait">Portrait Session</option>
+              <option value="brand">Brand Editorial</option>
+              <option value="event">Event Coverage</option>
+              <option value="other">Other / Custom</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Tell me about your project — dates, location, vision..."></textarea>
+            <p class="helper">Booking note: Please include your preferred dates and a brief description of the shoot.</p>
+          </div>
+
+          <button type="button" class="btn btn--primary" onclick="handleContact()" style="width: 100%; justify-content: center;">
+            Send Message →
+          </button>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="contact__info reveal">
+          <h3>Get in Touch</h3>
+
+          <div class="contact__detail">
+            <div class="contact__detail-icon">✉</div>
+            <div class="contact__detail-text">
+              <p>Email</p>
+              <strong>hello@infernophotography.co.ke</strong>
+            </div>
+          </div>
+
+          <div class="contact__detail">
+            <div class="contact__detail-icon">☏</div>
+            <div class="contact__detail-text">
+              <p>Phone</p>
+              <strong>+254 700 000 000</strong>
+            </div>
+          </div>
+
+          <div class="contact__detail">
+            <div class="contact__detail-icon">◎</div>
+            <div class="contact__detail-text">
+              <p>Location</p>
+              <strong>Kilifi, Kenya</strong>
+            </div>
+          </div>
+
+          <div class="contact__socials">
+            <p>Follow the Work</p>
+            <div class="social-links">
+              <a href="#" class="social-link" aria-label="Instagram">IG</a>
+              <a href="#" class="social-link" aria-label="LinkedIn">Li</a>
+              <a href="#" class="social-link" aria-label="Twitter/X">X</a>
+              <a href="#" class="social-link" aria-label="Behance">Be</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════
+       FOOTER
+  ══════════════════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+
+        <!-- Brand -->
+        <div class="footer__brand">
+          <h3><span>Inferno</span> Photography</h3>
+          <p>Cinematic portrait, editorial, and event photography based in Kilifi, Kenya. Every frame is made with intention.</p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer__col">
+          <h4>Navigate</h4>
+          <ul>
+            <li><a href="#work">Work</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#testimonials">Testimonials</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Services -->
+        <div class="footer__col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="#services">Portrait Sessions</a></li>
+            <li><a href="#services">Brand Editorial</a></li>
+            <li><a href="#services">Event Coverage</a></li>
+            <li><a href="#contact">Custom Projects</a></li>
+          </ul>
+        </div>
+
+        <!-- Admin + misc -->
+        <div class="footer__col">
+          <h4>Studio</h4>
+          <ul>
+            <li><a href="#">Portfolio PDF</a></li>
+            <li><a href="admin/index.html">Admin Login</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#contact">Book a Shoot</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="footer__bottom">
+        <p>&copy; 2025 Inferno Photography. All rights reserved.</p>
+        <p class="footer__sig">Light. Patience. Memory.</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ══════════════════════════════
+       JAVASCRIPT — Minimal vanilla JS
+  ══════════════════════════════ -->
+  <script>
+    /* ── Mobile Nav Toggle ── */
+    const toggle = document.getElementById('navToggle');
+    const nav = document.getElementById('mainNav');
+
+    toggle.addEventListener('click', () => {
+      const isOpen = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', isOpen);
+    });
+
+    /* ── Gallery Filter ── */
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const galleryItems = document.querySelectorAll('.gallery__item');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filter = btn.dataset.filter;
+        galleryItems.forEach(item => {
+          if (filter === 'all' || item.dataset.category === filter) {
+            item.style.display = '';
+            item.style.opacity = '0';
+            setTimeout(() => { item.style.opacity = '1'; item.style.transition = 'opacity 0.3s'; }, 10);
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    /* ── Scroll Reveal ── */
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    reveals.forEach(el => observer.observe(el));
+
+    /* ── Contact Form handler (saves to localStorage for admin to read) ── */
+    function handleContact() {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const service = document.getElementById('service').value;
+      const message = document.getElementById('message').value.trim();
+
+      if (!name || !email || !message) {
+        alert('Please fill in your name, email, and message.');
+        return;
+      }
+
+      const inquiry = { id: Date.now(), name, email, service, message, date: new Date().toLocaleDateString() };
+      const existing = JSON.parse(localStorage.getItem('inferno_messages') || '[]');
+      existing.push(inquiry);
+      localStorage.setItem('inferno_messages', JSON.stringify(existing));
+
+      alert(`Thank you, ${name}! Your message has been sent. I'll be in touch within 24 hours.`);
+      document.getElementById('name').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('service').value = '';
+      document.getElementById('message').value = '';
+    }
+
+    /* ── Load dynamic content from localStorage (admin edits) ── */
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load testimonials if admin has modified them
+      const storedTestimonials = localStorage.getItem('inferno_testimonials');
+      if (storedTestimonials) {
+        try {
+          const testimonials = JSON.parse(storedTestimonials);
+          const grid = document.getElementById('testimonialsGrid');
+          if (testimonials.length > 0) {
+            grid.innerHTML = testimonials.map(t => `
+              <div class="testimonial-card reveal">
+                <div class="testimonial-card__quote">"</div>
+                <p>${t.quote}</p>
+                <div class="testimonial-card__author">
+                  <div class="testimonial-card__avatar">${t.name.charAt(0)}</div>
+                  <div>
+                    <p class="testimonial-card__name">${t.name}</p>
+                    <p class="testimonial-card__role">${t.role}</p>
+                  </div>
+                </div>
+              </div>
+            `).join('');
+            // Re-observe new elements
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+          }
+        } catch(e) {}
+      }
+    });
+  </script>
+
+</body>
+</html>
