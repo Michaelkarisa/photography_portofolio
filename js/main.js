@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 async function loadLogo() {
   try {
-    const profile = await fetchPhotographerProfile();
+    const profile = await window.fetchPhotographerProfile();
     
     if (profile?.logo_url) {
       const logoImage = document.getElementById('logoImage');
@@ -61,7 +61,7 @@ async function loadLogo() {
  */
 async function loadPhotographerProfile() {
   try {
-    const profile = await fetchPhotographerProfile();
+    const profile = await window.fetchPhotographerProfile();
     
     if (profile) {
       // Update hero profile card
@@ -130,7 +130,7 @@ async function loadPhotographerProfile() {
  */
 async function loadGallery() {
   try {
-    const mediaItems = await fetchAllMedia();
+    const mediaItems = await window.fetchAllMedia();
     allGalleryData = mediaItems;
     
     console.log('[v0] Loaded', mediaItems.length, 'media items from Supabase');

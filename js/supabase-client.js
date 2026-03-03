@@ -8,20 +8,20 @@ const SUPABASE_URL = 'https://pkeqoyqojprzakncxlyv.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrZXFveXFvanByemFrbmN4bHl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM1ODc3NzIsImV4cCI6MjA0OTE2Mzc3Mn0.9QUqEJ8FfO-3d6IxDnLDHN2M8ZCqGrWXL9XkE0yUfMc';
 
 // Initialize Supabase Client (store in window to make it global)
-let supabase;
+// Use a property name that doesn't clash with the window.supabase CDN object
 if (!window.supabaseClient) {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  window.supabaseClient = supabase;
-} else {
-  supabase = window.supabaseClient;
+  window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }
+
+// Alias for use within this file
+const _db = window.supabaseClient;
 
 /**
  * Fetch photographer profile from users table
  */
 async function fetchPhotographerProfile() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('users')
       .select('*')
       .limit(1)
@@ -44,7 +44,7 @@ async function fetchPhotographerProfile() {
  */
 async function updateLogoUrl(logoUrl) {
   try {
-    const { data: existing } = await supabase
+    const { data: existing } = await _db
       .from('users')
       .select('id')
       .limit(1)
@@ -53,14 +53,14 @@ async function updateLogoUrl(logoUrl) {
     let result;
     if (existing) {
       // Update existing
-      result = await supabase
+      result = await _db
         .from('users')
         .update({ logo_url: logoUrl })
         .eq('id', existing.id)
         .select();
     } else {
       // Create new user record with logo
-      result = await supabase
+      result = await _db
         .from('users')
         .insert([{ logo_url: logoUrl }])
         .select();
@@ -83,7 +83,7 @@ async function updateLogoUrl(logoUrl) {
  */
 async function fetchAllMedia() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('media')
       .select('*')
       .order('created_at', { ascending: false });
@@ -105,7 +105,7 @@ async function fetchAllMedia() {
  */
 async function fetchMediaByCategory(category) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('media')
       .select('*')
       .eq('category', category)
@@ -128,7 +128,7 @@ async function fetchMediaByCategory(category) {
  */
 async function createMediaItem(url, cloudinaryPublicId, category, caption, mediaType = 'image') {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('media')
       .insert([
         {
@@ -158,7 +158,7 @@ async function createMediaItem(url, cloudinaryPublicId, category, caption, media
  */
 async function updateMediaItem(id, updates) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('media')
       .update(updates)
       .eq('id', id)
@@ -181,7 +181,7 @@ async function updateMediaItem(id, updates) {
  */
 async function deleteMediaItem(id) {
   try {
-    const { error } = await supabase
+    const { error } = await _db
       .from('media')
       .delete()
       .eq('id', id);
@@ -203,7 +203,7 @@ async function deleteMediaItem(id) {
  */
 async function savePhotographerProfile(profileData) {
   try {
-    const { data: existing } = await supabase
+    const { data: existing } = await _db
       .from('users')
       .select('id')
       .limit(1)
@@ -212,14 +212,14 @@ async function savePhotographerProfile(profileData) {
     let result;
     if (existing) {
       // Update existing
-      result = await supabase
+      result = await _db
         .from('users')
         .update(profileData)
         .eq('id', existing.id)
         .select();
     } else {
       // Create new
-      result = await supabase
+      result = await _db
         .from('users')
         .insert([profileData])
         .select();
@@ -242,7 +242,7 @@ async function savePhotographerProfile(profileData) {
  */
 async function fetchServices() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('services')
       .select('*')
       .eq('is_active', true)
@@ -265,7 +265,7 @@ async function fetchServices() {
  */
 async function createService(serviceData) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('services')
       .insert([serviceData])
       .select();
@@ -287,7 +287,7 @@ async function createService(serviceData) {
  */
 async function updateService(id, updates) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('services')
       .update(updates)
       .eq('id', id)
@@ -310,7 +310,7 @@ async function updateService(id, updates) {
  */
 async function deleteService(id) {
   try {
-    const { error } = await supabase
+    const { error } = await _db
       .from('services')
       .delete()
       .eq('id', id);
@@ -332,7 +332,7 @@ async function deleteService(id) {
  */
 async function submitMessage(messageData) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('messages')
       .insert([messageData])
       .select();
@@ -354,7 +354,7 @@ async function submitMessage(messageData) {
  */
 async function fetchMessages() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('messages')
       .select('*')
       .order('created_at', { ascending: false });
@@ -376,7 +376,7 @@ async function fetchMessages() {
  */
 async function markMessageAsRead(id) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('messages')
       .update({ is_read: true })
       .eq('id', id)
@@ -399,7 +399,7 @@ async function markMessageAsRead(id) {
  */
 async function deleteMessage(id) {
   try {
-    const { error } = await supabase
+    const { error } = await _db
       .from('messages')
       .delete()
       .eq('id', id);
@@ -421,7 +421,7 @@ async function deleteMessage(id) {
  */
 async function fetchTestimonials() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('testimonials')
       .select('*')
       .eq('is_approved', true)
@@ -445,7 +445,7 @@ async function fetchTestimonials() {
  */
 async function createTestimonial(testimonialData) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('testimonials')
       .insert([testimonialData])
       .select();
@@ -467,7 +467,7 @@ async function createTestimonial(testimonialData) {
  */
 async function updateTestimonial(id, updates) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('testimonials')
       .update(updates)
       .eq('id', id)
@@ -490,7 +490,7 @@ async function updateTestimonial(id, updates) {
  */
 async function createBooking(bookingData) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('bookings')
       .insert([bookingData])
       .select();
@@ -512,7 +512,7 @@ async function createBooking(bookingData) {
  */
 async function fetchBookings() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('bookings')
       .select('*, services(name, base_price)')
       .order('event_date', { ascending: true });
@@ -534,7 +534,7 @@ async function fetchBookings() {
  */
 async function updateBookingStatus(id, status) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await _db
       .from('bookings')
       .update({ status })
       .eq('id', id)

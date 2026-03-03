@@ -593,7 +593,7 @@ async function handleLogoUpload() {
     statusEl.textContent = 'Saving to database...';
 
     // Save logo URL to Supabase
-    const result = await updateLogoUrl(cloudinaryResult.url);
+    const result = await window.updateLogoUrl(cloudinaryResult.url);
 
     if (result) {
       statusEl.textContent = '✓ Logo uploaded successfully!';
@@ -629,7 +629,7 @@ async function handleLogoUpload() {
  */
 async function loadLogoPreview() {
   try {
-    const profile = await fetchPhotographerProfile();
+    const profile = await window.fetchPhotographerProfile();
     const preview = document.getElementById('logoPreview');
     const noLogo = document.getElementById('noLogo');
 
@@ -730,7 +730,7 @@ async function uploadMediaItem() {
 
     // Save to Supabase with media type
     const defaultCaption = caption || `${category.charAt(0).toUpperCase() + category.slice(1)} ${uploadType === 'video' ? 'Video' : 'Photo'}`;
-    const mediaItem = await createMediaItem(
+    const mediaItem = await window.createMediaItem(
       cloudinaryResult.url,
       cloudinaryResult.public_id,
       category,
@@ -774,7 +774,7 @@ async function uploadMediaItem() {
  */
 async function loadMediaGallery() {
   try {
-    const mediaItems = await fetchAllMedia();
+    const mediaItems = await window.fetchAllMedia();
     const gallery = document.getElementById('mediaGallery');
 
     if (!gallery) return;
@@ -805,7 +805,7 @@ async function deleteMediaFromAdmin(mediaId) {
   if (!confirm('Delete this image?')) return;
 
   try {
-    const success = await deleteMediaItem(mediaId);
+    const success = await window.deleteMediaItem(mediaId);
     if (success) {
       alert('Image deleted');
       await loadMediaGallery();
