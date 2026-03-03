@@ -377,7 +377,7 @@ function clearTestimonialForm() {
   });
 }
 
-/* ════════════════════════�������═════════════════
+/* ════════════════════════���������═════════════════
    SERVICES — Render & CRUD
 ══════════════════════════════════════════ */
 function renderServices() {
@@ -867,3 +867,32 @@ function initDashboard() {
   // Show dashboard panel by default
   switchPanel('dashboard');
 }
+
+/* Make admin functions globally accessible */
+window.switchPanel = switchPanel;
+window.handleLogout = handleLogout;
+window.handleSaveProfile = handleSaveProfile;
+window.handleLogoUpload = handleLogoUpload;
+window.loadLogoPreview = loadLogoPreview;
+window.uploadMediaItem = uploadMediaItem;
+window.loadMediaGallery = loadMediaGallery;
+window.deleteMediaFromAdmin = deleteMediaFromAdmin;
+window.saveProject = saveProject;
+window.editProject = editProject;
+window.deleteProject = deleteProject;
+window.saveGalleryItem = saveGalleryItem;
+window.editGalleryItem = editGalleryItem;
+window.deleteGalleryItem = deleteGalleryItem;
+window.saveTestimonial = saveTestimonial;
+window.editTestimonial = editTestimonial;
+window.deleteTestimonial = deleteTestimonial;
+window.saveService = saveService;
+window.editService = editService;
+window.deleteService = deleteService;
+window.markRead = markRead;
+window.deleteMessage = deleteMessage;
+window.saveBooking = saveBooking;
+window.editBooking = editBooking;
+window.deleteBooking = deleteBooking;
+window.handleResetDefaults = handleResetDefaults;
+window.clearAllMessages = clearAllMessages;

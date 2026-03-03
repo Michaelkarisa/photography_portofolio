@@ -246,8 +246,11 @@ function getOptimizedCloudinaryUrl(url, options = {}) {
   return url;
 }
 
-// Make functions available globally for admin
+// Make functions available globally
+window.loadLogo = loadLogo;
 window.loadPhotographerProfile = loadPhotographerProfile;
 window.loadGallery = loadGallery;
 window.renderGallery = renderGallery;
+window.setupGalleryFilters = setupGalleryFilters;
+window.applyFilter = applyFilter;
 window.allGalleryData = allGalleryData;

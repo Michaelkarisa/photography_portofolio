@@ -119,3 +119,7 @@ function validateImageFile(file) {
 
   return { valid: true, error: null, type: isVideo ? 'video' : 'image' };
 }
+
+/* Make functions globally accessible */
+window.uploadToCloudinary = uploadToCloudinary;
+window.validateImageFile = validateImageFile;
