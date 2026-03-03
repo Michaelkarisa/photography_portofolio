@@ -48,7 +48,10 @@ async function loadLogo() {
       if (logoImage) {
         logoImage.src = profile.logo_url;
         logoImage.style.display = 'block';
-        if (logoFallback) logoFallback.style.display = 'none';
+       // if (logoFallback) logoFallback.style.display = 'none';
+      }else{
+        logoImage.src = "favicon.png";
+        logoImage.style.display = 'block';
       }
     }
   } catch (err) {
