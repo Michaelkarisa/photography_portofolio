@@ -40,25 +40,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadLogo() {
   try {
     const profile = await window.fetchPhotographerProfile();
-    
+
     if (profile?.logo_url) {
-      const logoImage = document.getElementById('logoImage');
-      const logoFallback = document.getElementById('logoFallback');
-      
-      if (logoImage) {
-        logoImage.src = profile.logo_url;
-        logoImage.style.display = 'block';
-       if (logoFallback) logoFallback.style.display = 'none';
-      }else{
-        logoImage.src = "favicon.png";
-        logoImage.style.display = 'block';
+      // Set as favicon (app icon) instead of navbar
+      let favicon = document.querySelector("link[rel='icon']");
+      if (!favicon) {
+        favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        document.head.appendChild(favicon);
       }
+      favicon.href = profile.logo_url;
     }
   } catch (err) {
     console.error('[v0] Error loading logo:', err);
   }
 }
-
 /**
  * Load photographer profile from Supabase
  */
