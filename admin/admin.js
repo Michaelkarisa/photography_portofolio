@@ -377,7 +377,7 @@ function clearTestimonialForm() {
   });
 }
 
-/* ══════════════════════════════════════════
+/* ════════════════════════���═════════════════
    SERVICES — Render & CRUD
 ══════════════════════════════════════════ */
 function renderServices() {
@@ -546,6 +546,180 @@ function handleResetDefaults() {
   resetToDefaults();
   renderAll();
   showAlert('settingsAlert', 'Content reset to defaults successfully.', 'success');
+}
+
+/* ══════════════════════════════════════════
+   SUPABASE INTEGRATION
+══════════════════════════════════════════ */
+
+/**
+ * Handle photographer profile save (admin panel)
+ */
+async function handleSaveProfile() {
+  try {
+    const profileData = {
+      name: (document.getElementById('profileName')?.value || '').trim(),
+      bio: (document.getElementById('profileBio')?.value || '').trim(),
+      location: (document.getElementById('profileLocation')?.value || '').trim(),
+      services_offered: (document.getElementById('profileServices')?.value || '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s),
+      instagram_handle: (document.getElementById('profileInstagram')?.value || '').trim(),
+      twitter_handle: (document.getElementById('profileTwitter')?.value || '').trim(),
+      linkedin_handle: (document.getElementById('profileLinkedin')?.value || '').trim(),
+      portfolio_url: (document.getElementById('profilePortfolio')?.value || '').trim(),
+    };
+
+    if (!profileData.name) {
+      alert('Please enter a name');
+      return;
+    }
+
+    console.log('[v0] Saving profile:', profileData);
+    // Call the Supabase save function from supabase-client.js
+    const result = await window.savePhotographerProfile(profileData);
+
+    if (result) {
+      alert('Profile saved successfully!');
+      // Reload the frontend to show updates
+      window.opener?.location.reload();
+    } else {
+      alert('Failed to save profile');
+    }
+  } catch (err) {
+    console.error('[v0] Error saving profile:', err);
+    alert('Error saving profile: ' + err.message);
+  }
+}
+
+/**
+ * Upload media item to Cloudinary and save to Supabase
+ */
+async function uploadMediaItem() {
+  try {
+    const fileInput = document.getElementById('mediaFile');
+    const caption = (document.getElementById('mediaCaption')?.value || '').trim();
+    const category = (document.getElementById('mediaCategory')?.value || '').trim();
+    const statusEl = document.getElementById('uploadStatus');
+    const uploadBtn = document.getElementById('uploadButton');
+
+    if (!fileInput.files.length) {
+      alert('Please select an image file');
+      return;
+    }
+
+    if (!category) {
+      alert('Please select a category');
+      return;
+    }
+
+    const file = fileInput.files[0];
+
+    // Validate file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      alert(validation.error);
+      return;
+    }
+
+    // Show loading state
+    uploadBtn.disabled = true;
+    statusEl.textContent = 'Uploading to Cloudinary...';
+    statusEl.style.color = 'var(--grey-500)';
+
+    // Upload to Cloudinary
+    const cloudinaryResult = await uploadToCloudinary(file, 'inferno_pictures');
+
+    statusEl.textContent = 'Saving to database...';
+
+    // Save to Supabase
+    const mediaItem = await createMediaItem(
+      cloudinaryResult.url,
+      cloudinaryResult.public_id,
+      category,
+      caption || `${category.charAt(0).toUpperCase() + category.slice(1)} Photo`
+    );
+
+    if (mediaItem) {
+      statusEl.textContent = '✓ Image uploaded successfully!';
+      statusEl.style.color = 'var(--ember)';
+
+      // Clear form
+      fileInput.value = '';
+      document.getElementById('mediaCaption').value = '';
+      document.getElementById('mediaCategory').value = '';
+
+      // Reload media gallery
+      await loadMediaGallery();
+
+      // Reload frontend gallery
+      window.opener?.location.reload();
+
+      setTimeout(() => {
+        statusEl.textContent = '';
+      }, 3000);
+    } else {
+      throw new Error('Failed to save to database');
+    }
+  } catch (err) {
+    console.error('[v0] Upload error:', err);
+    const statusEl = document.getElementById('uploadStatus');
+    statusEl.textContent = '✗ Upload failed: ' + err.message;
+    statusEl.style.color = 'var(--red-500)';
+  } finally {
+    document.getElementById('uploadButton').disabled = false;
+  }
+}
+
+/**
+ * Load media gallery in admin panel
+ */
+async function loadMediaGallery() {
+  try {
+    const mediaItems = await fetchAllMedia();
+    const gallery = document.getElementById('mediaGallery');
+
+    if (!gallery) return;
+
+    if (mediaItems.length === 0) {
+      gallery.innerHTML = '<p style="color:var(--grey-400); grid-column:1/-1;">No media uploaded yet</p>';
+      return;
+    }
+
+    gallery.innerHTML = mediaItems.map(item => `
+      <div style="position:relative; overflow:hidden; border-radius:8px; aspect-ratio:1;">
+        <img src="${item.url}" alt="${item.caption}" style="width:100%; height:100%; object-fit:cover;" />
+        <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(0,0,0,0.7)); padding:8px; color:white; font-size:0.75rem;">
+          <strong>${item.caption || 'Untitled'}</strong>
+        </div>
+        <button onclick="deleteMediaFromAdmin('${item.id}')" style="position:absolute; top:4px; right:4px; background:rgba(255,77,46,0.9); color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.75rem;">Delete</button>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('[v0] Error loading media gallery:', err);
+  }
+}
+
+/**
+ * Delete media item from admin panel
+ */
+async function deleteMediaFromAdmin(mediaId) {
+  if (!confirm('Delete this image?')) return;
+
+  try {
+    const success = await deleteMediaItem(mediaId);
+    if (success) {
+      alert('Image deleted');
+      await loadMediaGallery();
+      window.opener?.location.reload();
+    } else {
+      alert('Failed to delete image');
+    }
+  } catch (err) {
+    console.error('[v0] Error deleting media:', err);
+    alert('Error: ' + err.message);
+  }
 }
 
 /* ══════════════════════════════════════════

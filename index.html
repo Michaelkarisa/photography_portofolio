@@ -3,9 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inferno Photography — Cinematic Frames. Honest Moments.</title>
-  <meta name="description" content="Inferno Photography — Cinematic portrait, editorial, and event photography. Burned into memory." />
+  <title>Inferno Pictures — Photography & Videography</title>
+  <meta name="description" content="Inferno Pictures — Cinematic portrait, editorial, event photography and videography. Burned into memory." />
   <link rel="stylesheet" href="styles.css" />
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Cloudinary -->
+  <script src="https://upload-widget.cloudinary.com/latest/sources/jquery.cloudinary.full.min.js"></script>
 </head>
 <body>
 
@@ -18,7 +22,7 @@
 
         <!-- Logo -->
         <a href="index.html" class="header__logo">
-          <span>Inferno</span> Photography
+          <span>Inferno</span> Pictures
         </a>
 
         <!-- Desktop Nav -->
@@ -52,13 +56,23 @@
 
         <!-- Text Column -->
         <div class="hero__text">
-          <div class="hero__badge">
-            Available for: Portrait &bull; Editorial &bull; Events
+          <!-- Photographer Profile Card -->
+          <div class="hero__profile" id="photographerProfile">
+            <div class="hero__profile-avatar" id="profileAvatar"></div>
+            <div class="hero__profile-content">
+              <h3 class="hero__profile-name" id="profileName">Photographer</h3>
+              <p class="hero__profile-bio" id="profileBio">Editorial photographer & videographer</p>
+              <div class="hero__profile-socials" id="profileSocials"></div>
+            </div>
+          </div>
+
+          <div class="hero__badge" id="heroBadge">
+            Available for: Portrait &bull; Editorial &bull; Events &bull; Videography
           </div>
 
           <h1 class="hero__title">
             Inferno<br>
-            <em>Photography</em>
+            <em>Pictures</em>
           </h1>
 
           <p class="hero__sub">
@@ -76,8 +90,9 @@
         <div class="hero__image-wrap">
           <div class="hero__image-card">
             <img
-              src="img/snow.jpg"
-              alt="Cinematic portrait in snow — Inferno Photography"
+              id="heroImage"
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'%3E%3Crect fill='%23222' width='400' height='500'/%3E%3C/svg%3E"
+              alt="Featured work — Inferno Pictures"
               loading="eager"
             />
           </div>
@@ -85,7 +100,7 @@
           <!-- Floating stat tag -->
           <div class="hero__float-tag">
             <p>Based in</p>
-            <strong>Kilifi, Kenya</strong>
+            <strong id="profileLocation">Location</strong>
           </div>
         </div>
 
@@ -115,155 +130,12 @@
         <button class="filter-btn" data-filter="nature">Nature</button>
         <button class="filter-btn" data-filter="editorial">Editorial</button>
         <button class="filter-btn" data-filter="event">Event</button>
+        <button class="filter-btn" data-filter="videography">Videography</button>
       </div>
 
       <!-- Masonry Grid -->
       <div class="gallery__grid" id="galleryGrid">
-
-        <div class="gallery__item" data-category="portrait">
-          <figure>
-            <img src="img/potrait.jpg" alt="Intimate portrait session" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>Soft Focus</h4>
-                <span class="pill">Portrait</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <div class="gallery__item" data-category="nature">
-          <figure>
-            <img src="img/beach.jpg" alt="Beach at golden hour" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>Golden Shore</h4>
-                <span class="pill">Nature</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <div class="gallery__item" data-category="portrait">
-          <figure>
-            <img src="img/potrait1.jpg" alt="Studio portrait" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>Studio Light</h4>
-                <span class="pill">Portrait</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <div class="gallery__item" data-category="nature">
-          <figure>
-            <img src="img/nature.jpg" alt="Forest landscape" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>Into the Wild</h4>
-                <span class="pill">Nature</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <div class="gallery__item" data-category="editorial">
-          <figure>
-            <img src="img/mirror.jpg" alt="Editorial mirror shot" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>Reflections</h4>
-                <span class="pill">Editorial</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <div class="gallery__item" data-category="nature">
-          <figure>
-            <img src="img/nature2.jpg" alt="Nature detail" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>Still Life</h4>
-                <span class="pill">Nature</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <div class="gallery__item" data-category="portrait">
-          <figure>
-            <img src="img/potrait2.jpg" alt="Candid portrait" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>Candid</h4>
-                <span class="pill">Portrait</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <div class="gallery__item" data-category="event">
-          <figure>
-            <img src="img/behind.jpg" alt="Behind the scenes event" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>Behind the Scene</h4>
-                <span class="pill">Event</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <div class="gallery__item" data-category="nature">
-          <figure>
-            <img src="img/pexels-jplenio-1103970.jpg" alt="Sunrise landscape" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>First Light</h4>
-                <span class="pill">Nature</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <div class="gallery__item" data-category="editorial">
-          <figure>
-            <img src="img/heart.jpg" alt="Artistic editorial" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>Pulse</h4>
-                <span class="pill">Editorial</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <div class="gallery__item" data-category="nature">
-          <figure>
-            <img src="img/nature3.jpg" alt="Mountain nature scene" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>Altitude</h4>
-                <span class="pill">Nature</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
-        <div class="gallery__item" data-category="editorial">
-          <figure>
-            <img src="img/work.jpg" alt="Editorial work shot" loading="lazy" />
-            <figcaption class="gallery__overlay">
-              <div class="gallery__caption">
-                <h4>The Work</h4>
-                <span class="pill">Editorial</span>
-              </div>
-            </figcaption>
-          </figure>
-        </div>
-
+        <!-- Gallery items loaded dynamically from Supabase -->
       </div><!-- /gallery__grid -->
     </div>
   </section>
@@ -786,7 +658,7 @@
       });
     });
 
-    /* ── Scroll Reveal ── */
+    /* ��─ Scroll Reveal ── */
     const reveals = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -851,6 +723,11 @@
       }
     });
   </script>
+
+  <!-- Supabase & Cloudinary Integration Scripts -->
+  <script src="js/supabase-client.js"></script>
+  <script src="js/cloudinary-upload.js"></script>
+  <script src="js/main.js"></script>
 
 </body>
 </html>
