@@ -377,7 +377,7 @@ function clearTestimonialForm() {
   });
 }
 
-/* ════════════════════════���═════════════════
+/* ════════════════════════�����═════════════════
    SERVICES — Render & CRUD
 ══════════════════════════════════════════ */
 function renderServices() {
@@ -605,7 +605,7 @@ async function uploadMediaItem() {
     const uploadBtn = document.getElementById('uploadButton');
 
     if (!fileInput.files.length) {
-      alert('Please select an image file');
+      alert('Please select a file (image or video)');
       return;
     }
 
@@ -625,7 +625,8 @@ async function uploadMediaItem() {
 
     // Show loading state
     uploadBtn.disabled = true;
-    statusEl.textContent = 'Uploading to Cloudinary...';
+    const uploadType = validation.type === 'video' ? 'video' : 'image';
+    statusEl.textContent = `Uploading ${uploadType} to Cloudinary...`;
     statusEl.style.color = 'var(--grey-500)';
 
     // Upload to Cloudinary
@@ -633,16 +634,18 @@ async function uploadMediaItem() {
 
     statusEl.textContent = 'Saving to database...';
 
-    // Save to Supabase
+    // Save to Supabase with media type
+    const defaultCaption = caption || `${category.charAt(0).toUpperCase() + category.slice(1)} ${uploadType === 'video' ? 'Video' : 'Photo'}`;
     const mediaItem = await createMediaItem(
       cloudinaryResult.url,
       cloudinaryResult.public_id,
       category,
-      caption || `${category.charAt(0).toUpperCase() + category.slice(1)} Photo`
+      defaultCaption,
+      cloudinaryResult.resource_type || uploadType
     );
 
     if (mediaItem) {
-      statusEl.textContent = '✓ Image uploaded successfully!';
+      statusEl.textContent = `✓ ${uploadType.charAt(0).toUpperCase() + uploadType.slice(1)} uploaded successfully!`;
       statusEl.style.color = 'var(--ember)';
 
       // Clear form

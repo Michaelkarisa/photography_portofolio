@@ -18,7 +18,13 @@ This guide covers the setup and configuration required to run the Inferno Pictur
 2. Open the SQL Editor
 3. Copy the entire contents of `scripts/schema.sql`
 4. Paste into a new SQL query
-5. Run the query to create the `users` and `media` tables
+5. Run the query to create all tables:
+   - `users` — Photographer profile (name, bio, location, social handles)
+   - `services` — Available photography services
+   - `media` — Gallery images and videos with metadata
+   - `messages` — Contact form submissions
+   - `testimonials` — Client testimonials and reviews
+   - `bookings` — Project/session booking requests
 
 ### 1.2 Get Your Credentials
 
@@ -105,14 +111,16 @@ INSERT INTO media (url, cloudinary_public_id, category, caption) VALUES
    - **Photographer Profile** — Edit your name, bio, location, and social handles
    - **Media** — Upload images to Cloudinary and save to database
 
-### Uploading Images
+### Uploading Media
 
 1. Go to **Media** panel
-2. Select an image file (JPEG, PNG, WebP, GIF — max 50MB)
-3. Add a caption and select a category
-4. Click **Upload Image**
-5. The image is uploaded to Cloudinary and saved to Supabase
-6. The frontend automatically reflects changes
+2. Select a file (image or video):
+   - **Images:** JPEG, PNG, WebP, GIF (max 50MB)
+   - **Videos:** MP4, WebM, QuickTime (max 500MB)
+3. Add a caption and select a category (Portrait, Editorial, Nature, Event)
+4. Click **Upload Media**
+5. The file is uploaded to Cloudinary and saved to Supabase
+6. The frontend automatically reflects changes when gallery reloads
 
 ---
 
@@ -161,17 +169,36 @@ project/
 - Data syncs to hero section and footer
 
 ### Media Management
-- Upload images directly from admin panel
-- Automatic Cloudinary integration
-- Categories: Portrait, Editorial, Nature, Event, Videography
-- Add captions for each image
-- View all uploaded media in admin gallery
+- Upload images and videos directly from admin panel
+- Automatic Cloudinary integration with optimization
+- Categories: Portrait, Editorial, Nature, Event
+- Add captions for each media item
+- View all uploaded media in admin gallery with delete option
+- Media type tracking (image or video)
+
+### Services Management
+- Add/edit photography services (Portrait Sessions, Brand Editorial, Events, etc.)
+- Set pricing and turnaround times
+- Mark services as active or inactive
+- Feature popular services
+
+### Messages & Bookings
+- Receive contact form submissions in admin inbox
+- Track booking requests with client details
+- Manage booking status (pending, confirmed, in-progress, completed, cancelled)
+- Link bookings to specific services
+
+### Testimonials
+- Collect and manage client testimonials
+- Star ratings and client information
+- Feature testimonials on website
+- Approve/reject testimonials before publishing
 
 ### Gallery
-- Dynamic gallery fed from Supabase
-- Filter by category
+- Dynamic gallery fed from Supabase media table
+- Filter by category (Portrait, Editorial, Nature, Event)
 - Responsive masonry layout
-- Hover effects and animations
+- Separate image and video handling
 
 ---
 
