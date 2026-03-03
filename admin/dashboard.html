@@ -41,16 +41,6 @@
           Media
         </a>
 
-        <a class="sidebar__link" data-panel="projects" onclick="switchPanel('projects')">
-          <span class="sidebar__link-icon">◈</span>
-          Projects
-        </a>
-
-        <a class="sidebar__link" data-panel="gallery" onclick="switchPanel('gallery')">
-          <span class="sidebar__link-icon">◻</span>
-          Gallery
-        </a>
-
         <a class="sidebar__link" data-panel="testimonials" onclick="switchPanel('testimonials')">
           <span class="sidebar__link-icon">❝</span>
           Testimonials
@@ -116,28 +106,28 @@
           <!-- Stats -->
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-card__icon">◈</div>
-              <div class="stat-card__label">Projects</div>
-              <div class="stat-card__num" id="stat-projects">0</div>
-              <div class="stat-card__sub">Total series</div>
-            </div>
-            <div class="stat-card">
               <div class="stat-card__icon">◻</div>
               <div class="stat-card__label">Gallery Photos</div>
-              <div class="stat-card__num" id="stat-photos">0</div>
-              <div class="stat-card__sub">Curated images</div>
+              <div class="stat-card__num" id="stat-photos">—</div>
+              <div class="stat-card__sub">Uploaded media</div>
             </div>
             <div class="stat-card">
               <div class="stat-card__icon">✉</div>
               <div class="stat-card__label">Inquiries</div>
-              <div class="stat-card__num" id="stat-inquiries">0</div>
+              <div class="stat-card__num" id="stat-inquiries">—</div>
               <div class="stat-card__sub">Total messages</div>
             </div>
             <div class="stat-card">
               <div class="stat-card__icon" style="color:var(--ember)">●</div>
               <div class="stat-card__label">New Messages</div>
-              <div class="stat-card__num" id="stat-new">0</div>
+              <div class="stat-card__num" id="stat-new">—</div>
               <div class="stat-card__sub">Unread inbox</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card__icon">◇</div>
+              <div class="stat-card__label">Services</div>
+              <div class="stat-card__num" id="stat-services">—</div>
+              <div class="stat-card__sub">Active offerings</div>
             </div>
           </div>
 
@@ -154,12 +144,12 @@
                     <tr>
                       <th>Name</th>
                       <th>Email</th>
-                      <th>Service</th>
+                      <th>Subject</th>
                       <th>Date</th>
                       <th>Status</th>
                     </tr>
                   </thead>
-                  <tbody id="messagesTableBody">
+                  <tbody id="dashboardMessagesBody">
                     <tr><td colspan="5" style="text-align:center;color:var(--grey-400);padding:24px;">Loading...</td></tr>
                   </tbody>
                 </table>
@@ -173,10 +163,10 @@
               <h3>Quick Actions</h3>
             </div>
             <div class="card__body" style="display:flex; gap:12px; flex-wrap:wrap;">
-              <button class="btn btn--outline" onclick="switchPanel('projects')">+ Add Project</button>
-              <button class="btn btn--outline" onclick="switchPanel('gallery')">+ Add Gallery Item</button>
+              <button class="btn btn--outline" onclick="switchPanel('media')">+ Upload Media</button>
               <button class="btn btn--outline" onclick="switchPanel('testimonials')">+ Add Testimonial</button>
               <button class="btn btn--outline" onclick="switchPanel('services')">+ Edit Services</button>
+              <button class="btn btn--outline" onclick="switchPanel('messages')">✉ View Messages</button>
               <a href="../index.html" target="_blank" class="btn btn--outline">↗ View Public Site</a>
             </div>
           </div>
@@ -192,7 +182,7 @@
           <!-- Logo Upload Card -->
           <div class="card">
             <div class="card__header">
-              <h3>Logo Upload</h3>
+              <h3>Logo / App Icon</h3>
             </div>
             <div class="card__body">
               <div id="currentLogo" style="margin-bottom:16px; text-align:center;">
@@ -204,7 +194,7 @@
               <div class="form-group">
                 <label>Logo File</label>
                 <input type="file" id="logoFile" accept="image/*" class="form-control" />
-                <small style="color:var(--grey-500);">Accepts: JPEG, PNG, WebP, GIF (Max 10MB). Recommended: 300x300px or similar square format.</small>
+                <small style="color:var(--grey-500);">Accepts: JPEG, PNG, WebP, GIF (Max 10MB). Recommended: square format.</small>
               </div>
 
               <button class="btn btn--primary" id="uploadLogoButton" onclick="handleLogoUpload()">Upload Logo</button>
@@ -217,46 +207,39 @@
               <h3>Photographer Profile</h3>
             </div>
             <div class="card__body">
+              <div id="profileAlert" class="alert" style="display:none;"></div>
               <div class="form-group">
                 <label>Full Name</label>
                 <input type="text" id="profileName" placeholder="Your name" class="form-control" />
               </div>
-
               <div class="form-group">
                 <label>Bio</label>
                 <textarea id="profileBio" placeholder="Write your bio..." class="form-control" rows="4"></textarea>
               </div>
-
               <div class="form-group">
                 <label>Location</label>
                 <input type="text" id="profileLocation" placeholder="City, Country" class="form-control" />
               </div>
-
               <div class="form-group">
                 <label>Services Offered (comma-separated)</label>
                 <input type="text" id="profileServices" placeholder="Portrait, Editorial, Events, Videography" class="form-control" />
               </div>
-
               <div class="form-group">
                 <label>Instagram Handle</label>
                 <input type="text" id="profileInstagram" placeholder="@yourhandle" class="form-control" />
               </div>
-
               <div class="form-group">
                 <label>Twitter/X Handle</label>
                 <input type="text" id="profileTwitter" placeholder="@yourhandle" class="form-control" />
               </div>
-
               <div class="form-group">
                 <label>LinkedIn Handle</label>
                 <input type="text" id="profileLinkedin" placeholder="your-profile" class="form-control" />
               </div>
-
               <div class="form-group">
                 <label>Portfolio URL</label>
                 <input type="url" id="profilePortfolio" placeholder="https://yourportfolio.com" class="form-control" />
               </div>
-
               <button class="btn btn--primary" onclick="handleSaveProfile()">Save Profile</button>
             </div>
           </div>
@@ -279,12 +262,10 @@
                 <input type="file" id="mediaFile" accept="image/*,video/*" class="form-control" />
                 <small style="color:var(--grey-500);">Images: JPEG, PNG, WebP, GIF (Max 50MB) | Videos: MP4, WebM, QuickTime (Max 500MB)</small>
               </div>
-
               <div class="form-group">
                 <label>Caption</label>
                 <input type="text" id="mediaCaption" placeholder="Media title/caption" class="form-control" />
               </div>
-
               <div class="form-group">
                 <label>Category</label>
                 <select id="mediaCategory" class="form-control">
@@ -295,122 +276,23 @@
                   <option value="event">Event</option>
                 </select>
               </div>
-
               <button class="btn btn--primary" id="uploadButton" onclick="uploadMediaItem()">Upload Media</button>
               <div id="uploadStatus" style="margin-top:12px; font-size:0.875rem;"></div>
             </div>
           </div>
 
-          <!-- Media Gallery -->
           <div class="card" style="margin-top:24px;">
             <div class="card__header">
               <h3>Uploaded Media</h3>
             </div>
-            <div class="card__body" style="padding: 0;">
+            <div class="card__body" style="padding:0;">
               <div id="mediaGallery" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; padding:16px;">
-                <!-- Media items loaded here -->
+                <p style="color:var(--grey-400);">Loading...</p>
               </div>
             </div>
           </div>
 
         </div><!-- /panel-media -->
-
-
-        <!-- ══════════════════
-             PROJECTS PANEL
-        ══════════════════ -->
-        <div class="panel" id="panel-projects">
-
-          <div class="card">
-            <div class="card__header">
-              <h3>All Projects</h3>
-            </div>
-            <div class="card__body">
-              <div class="item-list" id="projectsList">Loading...</div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card__header">
-              <h3>Add / Edit Project</h3>
-            </div>
-            <div class="card__body">
-              <div id="projAlert" class="alert" style="display:none;"></div>
-              <input type="hidden" id="proj-id" />
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="proj-title">Project Title *</label>
-                  <input type="text" id="proj-title" placeholder="e.g. Coastal Solitude" />
-                </div>
-                <div class="form-group">
-                  <label for="proj-cat">Category</label>
-                  <input type="text" id="proj-cat" placeholder="e.g. Portrait, Nature, Editorial" />
-                </div>
-                <div class="form-group form-grid--full">
-                  <label for="proj-desc">Description</label>
-                  <textarea id="proj-desc" placeholder="Short description of the series..."></textarea>
-                </div>
-              </div>
-              <div style="display:flex; align-items:center; gap:8px; margin-bottom: 16px;">
-                <input type="checkbox" id="proj-featured" />
-                <label for="proj-featured" style="font-size:0.875rem; cursor:pointer;">Mark as Featured</label>
-              </div>
-              <div class="form-actions">
-                <button class="btn btn--primary" onclick="saveProject()">Save Project</button>
-                <button class="btn btn--outline" onclick="clearProjectForm()">Clear</button>
-              </div>
-            </div>
-          </div>
-
-        </div><!-- /panel-projects -->
-
-
-        <!-- ══════════════════
-             GALLERY PANEL
-        ══════════════════ -->
-        <div class="panel" id="panel-gallery">
-
-          <div class="card">
-            <div class="card__header">
-              <h3>Gallery Items</h3>
-            </div>
-            <div class="card__body">
-              <div class="item-list" id="galleryList">Loading...</div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card__header">
-              <h3>Add / Edit Gallery Item</h3>
-            </div>
-            <div class="card__body">
-              <div id="galAlert" class="alert" style="display:none;"></div>
-              <div class="alert alert--info" style="margin-bottom:16px;">
-                Images must be placed in the <code>/img/</code> folder. Enter the filename below.
-              </div>
-              <input type="hidden" id="gal-id" />
-              <div class="form-grid">
-                <div class="form-group">
-                  <label for="gal-title">Image Title *</label>
-                  <input type="text" id="gal-title" placeholder="e.g. Golden Shore" />
-                </div>
-                <div class="form-group">
-                  <label for="gal-cat">Category</label>
-                  <input type="text" id="gal-cat" placeholder="Portrait, Nature, Editorial, Event" />
-                </div>
-                <div class="form-group form-grid--full">
-                  <label for="gal-filename">Image Filename *</label>
-                  <input type="text" id="gal-filename" placeholder="e.g. beach.jpg" />
-                </div>
-              </div>
-              <div class="form-actions">
-                <button class="btn btn--primary" onclick="saveGalleryItem()">Save Item</button>
-                <button class="btn btn--outline" onclick="clearGalleryForm()">Clear</button>
-              </div>
-            </div>
-          </div>
-
-        </div><!-- /panel-gallery -->
 
 
         <!-- ══════════════════
@@ -447,6 +329,10 @@
                   <label for="test-quote">Quote *</label>
                   <textarea id="test-quote" placeholder="The client's testimonial..."></textarea>
                 </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                <input type="checkbox" id="test-featured" />
+                <label for="test-featured" style="font-size:0.875rem; cursor:pointer;">Mark as Featured</label>
               </div>
               <div class="form-actions">
                 <button class="btn btn--primary" onclick="saveTestimonial()">Save Testimonial</button>
@@ -485,21 +371,21 @@
                   <input type="text" id="svc-name" placeholder="e.g. Portrait Session" />
                 </div>
                 <div class="form-group">
-                  <label for="svc-price">Starting Price *</label>
-                  <input type="text" id="svc-price" placeholder="e.g. KES 15,000" />
+                  <label for="svc-price">Starting Price</label>
+                  <input type="text" id="svc-price" placeholder="e.g. 15000" />
                 </div>
                 <div class="form-group">
-                  <label for="svc-turn">Turnaround</label>
-                  <input type="text" id="svc-turn" placeholder="e.g. 5–7 business days" />
+                  <label for="svc-turn">Duration (hours)</label>
+                  <input type="number" id="svc-turn" placeholder="e.g. 3" />
                 </div>
                 <div class="form-group">
                   <label for="svc-desc">Description</label>
                   <input type="text" id="svc-desc" placeholder="Short description" />
                 </div>
               </div>
-              <div style="display:flex; align-items:center; gap:8px; margin-bottom: 16px;">
-                <input type="checkbox" id="svc-featured" />
-                <label for="svc-featured" style="font-size:0.875rem; cursor:pointer;">Mark as Featured / Most Popular</label>
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                <input type="checkbox" id="svc-featured" checked />
+                <label for="svc-featured" style="font-size:0.875rem; cursor:pointer;">Active (visible on site)</label>
               </div>
               <div class="form-actions">
                 <button class="btn btn--primary" onclick="saveService()">Save Service</button>
@@ -519,6 +405,7 @@
           <div class="card">
             <div class="card__header">
               <h3>All Messages</h3>
+              <button class="btn btn--outline btn--sm" onclick="loadMessages()">↻ Refresh</button>
             </div>
             <div class="card__body" style="padding:0;">
               <div class="table-wrap">
@@ -527,13 +414,14 @@
                     <tr>
                       <th>Name</th>
                       <th>Email</th>
-                      <th>Service</th>
+                      <th>Subject</th>
+                      <th>Message</th>
                       <th>Date</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody id="messagesTableBody">
-                    <!-- Rendered by JS -->
+                    <tr><td colspan="6" style="text-align:center;color:var(--grey-400);padding:24px;">Loading...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -555,22 +443,6 @@
             <div class="card__body">
 
               <div id="settingsAlert" class="alert" style="display:none;"></div>
-
-              <div class="settings-row">
-                <div>
-                  <h4>Reset to Defaults</h4>
-                  <p>Restore all content (projects, gallery, testimonials, services) to their original demo state. This cannot be undone.</p>
-                </div>
-                <button class="btn btn--danger" onclick="handleResetDefaults()">Reset All Content</button>
-              </div>
-
-              <div class="settings-row">
-                <div>
-                  <h4>Clear All Messages</h4>
-                  <p>Permanently delete all contact form messages from storage.</p>
-                </div>
-                <button class="btn btn--danger" onclick="clearAllMessages()">Clear Messages</button>
-              </div>
 
               <div class="settings-row">
                 <div>
@@ -599,69 +471,150 @@
 
   </div><!-- /dashboard -->
 
-  <!-- Supabase & Cloudinary Integration -->
+  <!-- Scripts — order matters -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/supabase-client.js"></script>
   <script src="../js/cloudinary-upload.js"></script>
   <script src="admin.js"></script>
+
   <script>
-    /* Extra settings helper not in admin.js */
-    function clearAllMessages() {
-      if (!confirm('Delete ALL messages permanently?')) return;
-      localStorage.setItem('inferno_messages', JSON.stringify([]));
-      renderMessages();
-      renderStats();
-      showAlert('settingsAlert', 'All messages cleared.', 'success');
+    /* ══════════════════════════════════════════
+       DASHBOARD — load recent messages preview
+    ══════════════════════════════════════════ */
+    async function loadDashboardMessages() {
+      const tbody = document.getElementById('dashboardMessagesBody');
+      if (!tbody) return;
+
+      try {
+        const messages = await window.fetchMessages();
+
+        if (!messages || messages.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--grey-400); padding:24px;">No messages yet.</td></tr>';
+          return;
+        }
+
+        // Show latest 5 only
+        tbody.innerHTML = messages.slice(0, 5).map(m => `
+          <tr>
+            <td><strong>${escHtml(m.name)}</strong></td>
+            <td style="color:var(--grey-500)">${escHtml(m.email)}</td>
+            <td>${escHtml(m.subject || '—')}</td>
+            <td>${new Date(m.created_at).toLocaleDateString()}</td>
+            <td><span class="badge ${m.is_read ? 'badge--read' : 'badge--new'}">${m.is_read ? 'Read' : 'New'}</span></td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error('[v0] Error loading dashboard messages:', err);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red; padding:24px;">Failed to load messages.</td></tr>';
+      }
     }
 
-    /* Override switchPanel to load Supabase data */
-    const originalSwitchPanel = window.switchPanel;
+    /* ══════════════════════════════════════════
+       MESSAGES PANEL — full table from Supabase
+    ══════════════════════════════════════════ */
+    async function loadMessages() {
+      const tbody = document.getElementById('messagesTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--grey-400); padding:24px;">Loading...</td></tr>';
+
+      try {
+        const messages = await window.fetchMessages();
+
+        if (!messages || messages.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--grey-400); padding:24px;">No messages yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = messages.map(m => `
+          <tr style="${m.is_read ? '' : 'background: rgba(255,100,50,0.04);'}">
+            <td><strong>${escHtml(m.name)}</strong></td>
+            <td style="color:var(--grey-500); font-size:0.85rem;">${escHtml(m.email)}</td>
+            <td>${escHtml(m.subject || '—')}</td>
+            <td style="max-width:200px; font-size:0.82rem; color:var(--grey-600);">${escHtml((m.message || '').substring(0, 80))}${(m.message || '').length > 80 ? '…' : ''}</td>
+            <td style="font-size:0.82rem;">${new Date(m.created_at).toLocaleDateString()}</td>
+            <td>
+              <span class="badge ${m.is_read ? 'badge--read' : 'badge--new'}" style="margin-right:6px;">${m.is_read ? 'Read' : 'New'}</span>
+              ${!m.is_read ? `<button class="btn btn--outline btn--sm" onclick="markRead('${m.id}')">Mark Read</button>` : ''}
+              <button class="btn btn--danger btn--sm" style="margin-left:4px;" onclick="deleteMsg('${m.id}')">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error('[v0] Error loading messages:', err);
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red; padding:24px;">Failed to load messages. Check console.</td></tr>';
+      }
+    }
+
+    async function markRead(id) {
+      await window.markMessageAsRead(id);
+      loadMessages();
+      loadDashboardMessages();
+      renderStats();
+    }
+
+    async function deleteMsg(id) {
+      if (!confirm('Delete this message?')) return;
+      await window.deleteMessage(id);
+      loadMessages();
+      loadDashboardMessages();
+      renderStats();
+    }
+
+    /* ══════════════════════════════════════════
+       PANEL SWITCH — load correct data per panel
+    ══════════════════════════════════════════ */
+    const _baseSwitchPanel = window.switchPanel;
     window.switchPanel = function(panelName) {
-      originalSwitchPanel(panelName);
-
-      // Load profile data when profile panel is shown
-      if (panelName === 'profile') {
-        loadProfilePanel();
-      }
-
-      // Load media gallery when media panel is shown
-      if (panelName === 'media') {
-        loadMediaPanel();
-      }
+      _baseSwitchPanel(panelName);
+      if (panelName === 'messages')     loadMessages();
+      if (panelName === 'media')        window.loadMediaGallery();
+      if (panelName === 'services')     window.loadServices();
+      if (panelName === 'testimonials') window.loadTestimonials();
+      if (panelName === 'profile')      loadProfilePanel();
     };
 
-    /**
-     * Load photographer profile into form
-     */
+    /* ══════════════════════════════════════════
+       PROFILE PANEL — pre-fill from Supabase
+    ══════════════════════════════════════════ */
     async function loadProfilePanel() {
       try {
-        const profile = await fetchPhotographerProfile();
-        if (profile) {
-          document.getElementById('profileName').value = profile.name || '';
-          document.getElementById('profileBio').value = profile.bio || '';
-          document.getElementById('profileLocation').value = profile.location || '';
+        const profile = await window.fetchPhotographerProfile();
+        if (!profile) return;
+        const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+        set('profileName',      profile.name);
+        set('profileBio',       profile.bio);
+        set('profileLocation',  profile.location);
+        set('profileInstagram', profile.instagram_handle);
+        set('profileTwitter',   profile.twitter_handle);
+        set('profileLinkedin',  profile.linkedin_handle);
+        set('profilePortfolio', profile.portfolio_url);
+        if (document.getElementById('profileServices'))
           document.getElementById('profileServices').value = (profile.services_offered || []).join(', ');
-          document.getElementById('profileInstagram').value = profile.instagram_handle || '';
-          document.getElementById('profileTwitter').value = profile.twitter_handle || '';
-          document.getElementById('profileLinkedin').value = profile.linkedin_handle || '';
-          document.getElementById('profilePortfolio').value = profile.portfolio_url || '';
-        }
-        // Load logo preview
-        await loadLogoPreview();
+        await window.loadLogoPreview();
       } catch (err) {
-        console.error('[v0] Error loading profile:', err);
+        console.error('[v0] Error loading profile panel:', err);
       }
     }
 
-    /**
-     * Load media gallery
-     */
-    async function loadMediaPanel() {
-      await loadMediaGallery();
+    /* ══════════════════════════════════════════
+       HELPERS
+    ══════════════════════════════════════════ */
+    function escHtml(str = '') {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
 
-    /* Init on load */
-    document.addEventListener('DOMContentLoaded', initDashboard);
+    /* ══════════════════════════════════════════
+       INIT
+    ══════════════════════════════════════════ */
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initDashboard();        // auth guard + stats
+      await loadDashboardMessages(); // recent messages on dashboard panel
+    });
   </script>
 
 </body>
