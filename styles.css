@@ -321,6 +321,75 @@ ul {
   50% { opacity: 0.5; transform: scale(0.85); }
 }
 
+/* Photographer Profile Card */
+.hero__profile {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+  padding: var(--sp-3);
+  background: var(--grey-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--grey-200);
+}
+
+.hero__profile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--ember);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.hero__profile-content {
+  flex: 1;
+}
+
+.hero__profile-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--grey-900);
+  margin: 0 0 2px 0;
+}
+
+.hero__profile-bio {
+  font-size: 0.875rem;
+  color: var(--grey-500);
+  margin: 0 0 8px 0;
+}
+
+.hero__profile-socials {
+  display: flex;
+  gap: var(--sp-1);
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 1px solid var(--grey-300);
+  color: var(--grey-700);
+  text-decoration: none;
+  transition: all var(--transition);
+  font-size: 0.875rem;
+}
+
+.social-link:hover {
+  background: var(--ember);
+  color: var(--white);
+  border-color: var(--ember);
+}
+
 .hero__title {
   font-family: var(--font-serif);
   font-size: clamp(2.5rem, 6vw, 4.5rem);

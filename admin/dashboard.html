@@ -16,7 +16,7 @@
     <aside class="sidebar">
 
       <div class="sidebar__brand">
-        <h2><span>Inferno</span> Photography</h2>
+        <h2><span>Inferno</span> Pictures</h2>
         <p>Admin Panel</p>
       </div>
 
@@ -30,6 +30,16 @@
         </a>
 
         <p class="sidebar__nav-label" style="margin-top: 8px;">Content</p>
+
+        <a class="sidebar__link" data-panel="profile" onclick="switchPanel('profile')">
+          <span class="sidebar__link-icon">👤</span>
+          Photographer Profile
+        </a>
+
+        <a class="sidebar__link" data-panel="media" onclick="switchPanel('media')">
+          <span class="sidebar__link-icon">🖼</span>
+          Media
+        </a>
 
         <a class="sidebar__link" data-panel="projects" onclick="switchPanel('projects')">
           <span class="sidebar__link-icon">◈</span>
@@ -172,6 +182,116 @@
           </div>
 
         </div><!-- /panel-dashboard -->
+
+
+        <!-- ══════════════════
+             PHOTOGRAPHER PROFILE PANEL
+        ══════════════════ -->
+        <div class="panel" id="panel-profile">
+
+          <div class="card">
+            <div class="card__header">
+              <h3>Photographer Profile</h3>
+            </div>
+            <div class="card__body">
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="profileName" placeholder="Your name" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label>Bio</label>
+                <textarea id="profileBio" placeholder="Write your bio..." class="form-control" rows="4"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="profileLocation" placeholder="City, Country" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label>Services Offered (comma-separated)</label>
+                <input type="text" id="profileServices" placeholder="Portrait, Editorial, Events, Videography" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label>Instagram Handle</label>
+                <input type="text" id="profileInstagram" placeholder="@yourhandle" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label>Twitter/X Handle</label>
+                <input type="text" id="profileTwitter" placeholder="@yourhandle" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label>LinkedIn Handle</label>
+                <input type="text" id="profileLinkedin" placeholder="your-profile" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label>Portfolio URL</label>
+                <input type="url" id="profilePortfolio" placeholder="https://yourportfolio.com" class="form-control" />
+              </div>
+
+              <button class="btn btn--primary" onclick="handleSaveProfile()">Save Profile</button>
+            </div>
+          </div>
+
+        </div><!-- /panel-profile -->
+
+
+        <!-- ══════════════════
+             MEDIA PANEL
+        ══════════════════ -->
+        <div class="panel" id="panel-media">
+
+          <div class="card">
+            <div class="card__header">
+              <h3>Upload Media</h3>
+            </div>
+            <div class="card__body">
+              <div class="form-group">
+                <label>Image File</label>
+                <input type="file" id="mediaFile" accept="image/*" class="form-control" />
+                <small style="color:var(--grey-500);">Accepts: JPEG, PNG, WebP, GIF (Max 50MB)</small>
+              </div>
+
+              <div class="form-group">
+                <label>Caption</label>
+                <input type="text" id="mediaCaption" placeholder="Image title/caption" class="form-control" />
+              </div>
+
+              <div class="form-group">
+                <label>Category</label>
+                <select id="mediaCategory" class="form-control">
+                  <option value="">-- Select Category --</option>
+                  <option value="portrait">Portrait</option>
+                  <option value="editorial">Editorial</option>
+                  <option value="nature">Nature</option>
+                  <option value="event">Event</option>
+                  <option value="videography">Videography</option>
+                </select>
+              </div>
+
+              <button class="btn btn--primary" id="uploadButton" onclick="uploadMediaItem()">Upload Image</button>
+              <div id="uploadStatus" style="margin-top:12px; font-size:0.875rem;"></div>
+            </div>
+          </div>
+
+          <!-- Media Gallery -->
+          <div class="card" style="margin-top:24px;">
+            <div class="card__header">
+              <h3>Uploaded Media</h3>
+            </div>
+            <div class="card__body" style="padding: 0;">
+              <div id="mediaGallery" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; padding:16px;">
+                <!-- Media items loaded here -->
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /panel-media -->
 
 
         <!-- ══════════════════
@@ -457,7 +577,10 @@
 
   </div><!-- /dashboard -->
 
-
+  <!-- Supabase & Cloudinary Integration -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/cloudinary-upload.js"></script>
   <script src="admin.js"></script>
   <script>
     /* Extra settings helper not in admin.js */
@@ -467,6 +590,50 @@
       renderMessages();
       renderStats();
       showAlert('settingsAlert', 'All messages cleared.', 'success');
+    }
+
+    /* Override switchPanel to load Supabase data */
+    const originalSwitchPanel = window.switchPanel;
+    window.switchPanel = function(panelName) {
+      originalSwitchPanel(panelName);
+
+      // Load profile data when profile panel is shown
+      if (panelName === 'profile') {
+        loadProfilePanel();
+      }
+
+      // Load media gallery when media panel is shown
+      if (panelName === 'media') {
+        loadMediaPanel();
+      }
+    };
+
+    /**
+     * Load photographer profile into form
+     */
+    async function loadProfilePanel() {
+      try {
+        const profile = await fetchPhotographerProfile();
+        if (profile) {
+          document.getElementById('profileName').value = profile.name || '';
+          document.getElementById('profileBio').value = profile.bio || '';
+          document.getElementById('profileLocation').value = profile.location || '';
+          document.getElementById('profileServices').value = (profile.services_offered || []).join(', ');
+          document.getElementById('profileInstagram').value = profile.instagram_handle || '';
+          document.getElementById('profileTwitter').value = profile.twitter_handle || '';
+          document.getElementById('profileLinkedin').value = profile.linkedin_handle || '';
+          document.getElementById('profilePortfolio').value = profile.portfolio_url || '';
+        }
+      } catch (err) {
+        console.error('[v0] Error loading profile:', err);
+      }
+    }
+
+    /**
+     * Load media gallery
+     */
+    async function loadMediaPanel() {
+      await loadMediaGallery();
     }
 
     /* Init on load */
