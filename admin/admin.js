@@ -1,98 +1,26 @@
 /**
  * INFERNO PHOTOGRAPHY — ADMIN JAVASCRIPT
- * Handles: login auth, dashboard data, localStorage CRUD
- *
- * NOTE: Replace with real backend auth in production.
- * This is a demo-only client-side implementation.
+ * All data reads/writes go to Supabase.
+ * localStorage is no longer used for content.
  */
 
 'use strict';
 
 /* ══════════════════════════════════════════
-   CONSTANTS & DEMO CREDENTIALS
-   Replace with real backend auth in production.
+   AUTH CONSTANTS
 ══════════════════════════════════════════ */
 const DEMO_USER = 'admin';
 const DEMO_PASS = 'inferno123';
 const AUTH_KEY  = 'inferno_admin_auth';
 
 /* ══════════════════════════════════════════
-   DEFAULT DATA — Seeded to localStorage on first run
-══════════════════════════════════════════ */
-const DEFAULTS = {
-  inferno_projects: [
-    { id: 1, title: 'Coastal Solitude', category: 'Nature', description: 'A meditative coastal series.', featured: true },
-    { id: 2, title: 'Urban Fragments', category: 'Editorial', description: 'Architecture in absence.', featured: true },
-    { id: 3, title: 'Quiet Faces', category: 'Portrait', description: 'Studio portrait series.', featured: false },
-  ],
-  inferno_gallery: [
-    { id: 1, title: 'Soft Focus', category: 'Portrait', filename: 'potrait.jpg' },
-    { id: 2, title: 'Golden Shore', category: 'Nature', filename: 'beach.jpg' },
-    { id: 3, title: 'Reflections', category: 'Editorial', filename: 'mirror.jpg' },
-    { id: 4, title: 'Into the Wild', category: 'Nature', filename: 'nature.jpg' },
-    { id: 5, title: 'First Light', category: 'Nature', filename: 'pexels-jplenio-1103970.jpg' },
-    { id: 6, title: 'Behind the Scene', category: 'Event', filename: 'behind.jpg' },
-  ],
-  inferno_testimonials: [
-    { id: 1, name: 'Amara Osei', role: 'Creative Director, Lumi Brands', quote: 'Working with Inferno Photography was unlike anything I\'d experienced before. Alex has an uncanny ability to capture moments that feel genuinely lived.' },
-    { id: 2, name: 'Njeri Kimani', role: 'Founder, Savanna Collective', quote: 'The portrait session for our team was seamless. Professional, warm, and the results were stunning.' },
-    { id: 3, name: 'Tobias Mwenda', role: 'Events Lead, Nairobi Design Week', quote: 'Alex delivers something different — editorial-quality coverage with documentary-style honesty.' },
-  ],
-  inferno_services: [
-    { id: 1, name: 'Portrait Session', price: 'KES 15,000', turnaround: '5–7 days', description: 'For individuals, families, and personal brands.', featured: false },
-    { id: 2, name: 'Brand Editorial', price: 'KES 45,000', turnaround: '7–10 days', description: 'For businesses, startups, and creative studios.', featured: true },
-    { id: 3, name: 'Event Coverage', price: 'KES 60,000', turnaround: '10–14 days', description: 'Weddings, launches, galas, and experiences.', featured: false },
-  ],
-  inferno_messages: [
-    { id: 1, name: 'Sample Client', email: 'client@example.com', service: 'portrait', message: 'Hello! I\'m interested in a portrait session for my family.', date: '2025-06-01', read: false },
-    { id: 2, name: 'Brand Agency', email: 'agency@example.com', service: 'brand', message: 'We have an exciting editorial project to discuss.', date: '2025-06-05', read: true },
-  ]
-};
-
-/* ══════════════════════════════════════════
-   STORAGE HELPERS
-══════════════════════════════════════════ */
-function getData(key) {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : null;
-  } catch (e) {
-    return null;
-  }
-}
-
-function setData(key, value) {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-function seedDefaults() {
-  Object.entries(DEFAULTS).forEach(([key, value]) => {
-    if (!localStorage.getItem(key)) {
-      setData(key, value);
-    }
-  });
-}
-
-function resetToDefaults() {
-  Object.entries(DEFAULTS).forEach(([key, value]) => {
-    setData(key, value);
-  });
-}
-
-/* ══════════════════════════════════════════
-   AUTH — Login Handler
-   NOTE: Replace with real backend auth in production.
+   AUTH — Login
 ══════════════════════════════════════════ */
 function handleLogin(e) {
   e.preventDefault();
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
-  const errorEl = document.getElementById('loginError');
+  const errorEl  = document.getElementById('loginError');
 
   if (username === DEMO_USER && password === DEMO_PASS) {
     sessionStorage.setItem(AUTH_KEY, 'true');
@@ -106,7 +34,7 @@ function handleLogin(e) {
 }
 
 /* ══════════════════════════════════════════
-   AUTH — Guard (run on dashboard page)
+   AUTH — Guard
 ══════════════════════════════════════════ */
 function guardAuth() {
   if (sessionStorage.getItem(AUTH_KEY) !== 'true') {
@@ -129,342 +57,195 @@ function handleLogout() {
    NAV — Section Switching
 ══════════════════════════════════════════ */
 function switchPanel(panelId) {
-  // Hide all panels
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  // Show target
   const target = document.getElementById('panel-' + panelId);
   if (target) target.classList.add('active');
 
-  // Update sidebar active state
   document.querySelectorAll('.sidebar__link').forEach(l => l.classList.remove('active'));
   const activeLink = document.querySelector(`[data-panel="${panelId}"]`);
   if (activeLink) activeLink.classList.add('active');
 
-  // Update topbar title
   const titles = {
-    dashboard: 'Dashboard',
-    projects: 'Projects',
-    gallery: 'Gallery',
-    testimonials: 'Testimonials',
-    services: 'Services',
-    messages: 'Messages',
-    settings: 'Settings'
+    dashboard: 'Dashboard', gallery: 'Gallery', testimonials: 'Testimonials',
+    services: 'Services', messages: 'Messages', bookings: 'Bookings', settings: 'Settings'
   };
   const titleEl = document.getElementById('topbarTitle');
   if (titleEl) titleEl.textContent = titles[panelId] || 'Dashboard';
+
+  // Load data for the panel being switched to
+  if (panelId === 'messages')     loadMessages();
+  if (panelId === 'gallery')      loadMediaGallery();
+  if (panelId === 'services')     loadServices();
+  if (panelId === 'testimonials') loadTestimonials();
+  if (panelId === 'bookings')     loadBookings();
+  if (panelId === 'settings')     loadProfileForm();
 }
 
 /* ══════════════════════════════════════════
-   DASHBOARD — Render summary stats
+   DASHBOARD — Stats from Supabase
 ══════════════════════════════════════════ */
-function renderStats() {
-  const projects    = getData('inferno_projects') || [];
-  const gallery     = getData('inferno_gallery') || [];
-  const messages    = getData('inferno_messages') || [];
-  const featured    = projects.filter(p => p.featured).length;
-  const newMessages = messages.filter(m => !m.read).length;
-
-  document.getElementById('stat-projects').textContent = projects.length;
-  document.getElementById('stat-photos').textContent = gallery.length;
-  document.getElementById('stat-inquiries').textContent = messages.length;
-  document.getElementById('stat-new').textContent = newMessages;
-}
-
-
-async function saveBooking() {
-  const id = document.getElementById('bookingId')?.value;
-  const status = document.getElementById('bookingStatus')?.value;
-
+async function renderStats() {
   try {
-    if (id) {
-      await window.updateBookingStatus(id, status);
-    }
-    await loadBookings(); // refresh the list
-    closeModal('bookingModal'); // close modal if you have one
-    showNotification('Booking updated successfully!');
+    const [media, messages, services, bookings] = await Promise.all([
+      window.fetchAllMedia(),
+      window.fetchMessages(),
+      window.fetchServices(),
+      window.fetchBookings(),
+    ]);
+
+    const unread = (messages || []).filter(m => !m.is_read).length;
+
+    const el = id => document.getElementById(id);
+    if (el('stat-photos'))    el('stat-photos').textContent    = (media    || []).length;
+    if (el('stat-inquiries')) el('stat-inquiries').textContent = (messages || []).length;
+    if (el('stat-new'))       el('stat-new').textContent       = unread;
+    if (el('stat-services'))  el('stat-services').textContent  = (services || []).length;
+    if (el('stat-bookings'))  el('stat-bookings').textContent  = (bookings || []).length;
   } catch (err) {
-    console.error('[v0] Error saving booking:', err);
-    showNotification('Error saving booking.', 'error');
+    console.error('[v0] Error loading stats:', err);
   }
 }
 
 /* ══════════════════════════════════════════
-   MESSAGES — Render table
+   MESSAGES — Supabase CRUD
 ══════════════════════════════════════════ */
-function renderMessages() {
-  const messages = getData('inferno_messages') || [];
+async function loadMessages() {
   const tbody = document.getElementById('messagesTableBody');
   if (!tbody) return;
 
-  if (messages.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="color:var(--grey-400); text-align:center; padding:32px;">No messages yet.</td></tr>';
-    return;
-  }
+  tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:32px; color:var(--grey-400);">Loading...</td></tr>';
 
-  tbody.innerHTML = messages.map(m => `
-    <tr>
-      <td><strong>${escHtml(m.name)}</strong></td>
-      <td style="color:var(--grey-500)">${escHtml(m.email)}</td>
-      <td>${escHtml(m.service || '—')}</td>
-      <td>${escHtml(m.date || '—')}</td>
-      <td>
-        <span class="badge ${m.read ? 'badge--read' : 'badge--new'}">${m.read ? 'Read' : 'New'}</span>
-        &nbsp;
-        <button class="btn btn--outline btn--sm" onclick="markRead(${m.id})">Mark Read</button>
-        <button class="btn btn--danger btn--sm" onclick="deleteMessage(${m.id})">Delete</button>
-      </td>
-    </tr>
-  `).join('');
-}
+  try {
+    const messages = await window.fetchMessages();
 
-function markRead(id) {
-  const messages = getData('inferno_messages') || [];
-  const msg = messages.find(m => m.id === id);
-  if (msg) {
-    msg.read = true;
-    setData('inferno_messages', messages);
-    renderMessages();
-    renderStats();
+    if (!messages || messages.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="color:var(--grey-400); text-align:center; padding:32px;">No messages yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = messages.map(m => `
+      <tr>
+        <td><strong>${escHtml(m.name)}</strong></td>
+        <td style="color:var(--grey-500)">${escHtml(m.email)}</td>
+        <td>${escHtml(m.subject || '—')}</td>
+        <td>${new Date(m.created_at).toLocaleDateString()}</td>
+        <td>
+          <span class="badge ${m.is_read ? 'badge--read' : 'badge--new'}">${m.is_read ? 'Read' : 'New'}</span>
+          &nbsp;
+          <button class="btn btn--outline btn--sm" onclick="markRead('${m.id}')">Mark Read</button>
+          <button class="btn btn--danger btn--sm" onclick="deleteMessage('${m.id}')">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('[v0] Error loading messages:', err);
+    tbody.innerHTML = '<tr><td colspan="5" style="color:red; text-align:center; padding:32px;">Failed to load messages.</td></tr>';
   }
 }
 
-function deleteMessage(id) {
+async function markRead(id) {
+  await window.markMessageAsRead(id);
+  loadMessages();
+  renderStats();
+}
+
+async function deleteMessage(id) {
   if (!confirm('Delete this message?')) return;
-  let messages = getData('inferno_messages') || [];
-  messages = messages.filter(m => m.id !== id);
-  setData('inferno_messages', messages);
-  renderMessages();
+  await window.deleteMessage(id);
+  loadMessages();
   renderStats();
 }
 
 /* ══════════════════════════════════════════
-   PROJECTS — Render & CRUD
+   SERVICES — Supabase CRUD
 ══════════════════════════════════════════ */
-function renderProjects() {
-  const projects = getData('inferno_projects') || [];
-  const list = document.getElementById('projectsList');
+async function loadServices() {
+  const list = document.getElementById('servicesList');
   if (!list) return;
 
-  if (projects.length === 0) {
-    list.innerHTML = '<p style="color:var(--grey-400);">No projects yet.</p>';
-    return;
-  }
+  list.innerHTML = '<p style="color:var(--grey-400);">Loading...</p>';
 
-  list.innerHTML = projects.map(p => `
-    <div class="item-row">
-      <div class="item-row__info">
-        <div class="item-row__title">${escHtml(p.title)}</div>
-        <div class="item-row__meta">${escHtml(p.category)} ${p.featured ? '· <span style="color:var(--ember)">Featured</span>' : ''}</div>
+  try {
+    const items = await window.fetchServices();
+
+    if (!items || items.length === 0) {
+      list.innerHTML = '<p style="color:var(--grey-400);">No services yet.</p>';
+      return;
+    }
+
+    list.innerHTML = items.map(s => `
+      <div class="item-row">
+        <div class="item-row__info">
+          <div class="item-row__title">${escHtml(s.name)}</div>
+          <div class="item-row__meta">
+            ${s.base_price ? 'KES ' + Number(s.base_price).toLocaleString() : ''}
+            ${s.duration_hours ? ' · ' + s.duration_hours + 'hrs' : ''}
+            ${s.is_active ? '' : ' · <span style="color:var(--grey-400)">Inactive</span>'}
+          </div>
+        </div>
+        <div class="item-row__actions">
+          <button class="btn btn--outline btn--sm" onclick="editService('${s.id}')">Edit</button>
+          <button class="btn btn--danger btn--sm" onclick="removeService('${s.id}')">Delete</button>
+        </div>
       </div>
-      <div class="item-row__actions">
-        <button class="btn btn--outline btn--sm" onclick="editProject(${p.id})">Edit</button>
-        <button class="btn btn--danger btn--sm" onclick="deleteProject(${p.id})">Delete</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function saveProject() {
-  const id    = parseInt(document.getElementById('proj-id').value) || null;
-  const title = document.getElementById('proj-title').value.trim();
-  const cat   = document.getElementById('proj-cat').value.trim();
-  const desc  = document.getElementById('proj-desc').value.trim();
-  const feat  = document.getElementById('proj-featured').checked;
-
-  if (!title) { alert('Title is required.'); return; }
-
-  let projects = getData('inferno_projects') || [];
-
-  if (id) {
-    projects = projects.map(p => p.id === id ? { ...p, title, category: cat, description: desc, featured: feat } : p);
-    showAlert('projAlert', 'Project updated.', 'success');
-  } else {
-    const newId = Date.now();
-    projects.push({ id: newId, title, category: cat, description: desc, featured: feat });
-    showAlert('projAlert', 'Project added.', 'success');
+    `).join('');
+  } catch (err) {
+    console.error('[v0] Error loading services:', err);
   }
-
-  setData('inferno_projects', projects);
-  renderProjects();
-  renderStats();
-  clearProjectForm();
 }
 
-function editProject(id) {
-  const projects = getData('inferno_projects') || [];
-  const p = projects.find(x => x.id === id);
-  if (!p) return;
+async function saveService() {
+  const id    = document.getElementById('svc-id')?.value;
+  const name  = document.getElementById('svc-name')?.value.trim();
+  const price = document.getElementById('svc-price')?.value.trim();
+  const hours = document.getElementById('svc-turn')?.value.trim();
+  const desc  = document.getElementById('svc-desc')?.value.trim();
+  const active = document.getElementById('svc-featured')?.checked ?? true;
 
-  document.getElementById('proj-id').value = p.id;
-  document.getElementById('proj-title').value = p.title;
-  document.getElementById('proj-cat').value = p.category;
-  document.getElementById('proj-desc').value = p.description;
-  document.getElementById('proj-featured').checked = p.featured;
-}
+  if (!name) { alert('Service name is required.'); return; }
 
-function deleteProject(id) {
-  if (!confirm('Delete this project?')) return;
-  let projects = getData('inferno_projects') || [];
-  projects = projects.filter(p => p.id !== id);
-  setData('inferno_projects', projects);
-  renderProjects();
-  renderStats();
-}
+  const payload = {
+    name,
+    base_price: price ? parseFloat(price.replace(/[^0-9.]/g, '')) : null,
+    duration_hours: hours ? parseInt(hours) : null,
+    description: desc,
+    is_active: active,
+  };
 
-function clearProjectForm() {
-  ['proj-id','proj-title','proj-cat','proj-desc'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-  const feat = document.getElementById('proj-featured');
-  if (feat) feat.checked = false;
-}
-
-/* ══════════════════════════════════════════
-   TESTIMONIALS — Render & CRUD
-══════════════════════════════════════════ */
-function renderTestimonials() {
-  const items = getData('inferno_testimonials') || [];
-  const list  = document.getElementById('testimonialsList');
-  if (!list) return;
-
-  if (items.length === 0) {
-    list.innerHTML = '<p style="color:var(--grey-400);">No testimonials yet.</p>';
-    return;
+  try {
+    if (id) {
+      await window.updateService(id, payload);
+      showAlert('svcAlert', 'Service updated.', 'success');
+    } else {
+      await window.createService(payload);
+      showAlert('svcAlert', 'Service added.', 'success');
+    }
+    clearServiceForm();
+    loadServices();
+  } catch (err) {
+    console.error('[v0] Error saving service:', err);
+    showAlert('svcAlert', 'Error saving service.', 'error');
   }
-
-  list.innerHTML = items.map(t => `
-    <div class="item-row">
-      <div class="item-row__info">
-        <div class="item-row__title">${escHtml(t.name)}</div>
-        <div class="item-row__meta">${escHtml(t.role)}</div>
-      </div>
-      <div class="item-row__actions">
-        <button class="btn btn--outline btn--sm" onclick="editTestimonial(${t.id})">Edit</button>
-        <button class="btn btn--danger btn--sm" onclick="deleteTestimonial(${t.id})">Delete</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function saveTestimonial() {
-  const id    = parseInt(document.getElementById('test-id').value) || null;
-  const name  = document.getElementById('test-name').value.trim();
-  const role  = document.getElementById('test-role').value.trim();
-  const quote = document.getElementById('test-quote').value.trim();
-
-  if (!name || !quote) { alert('Name and quote are required.'); return; }
-
-  let items = getData('inferno_testimonials') || [];
-
-  if (id) {
-    items = items.map(t => t.id === id ? { ...t, name, role, quote } : t);
-    showAlert('testAlert', 'Testimonial updated.', 'success');
-  } else {
-    items.push({ id: Date.now(), name, role, quote });
-    showAlert('testAlert', 'Testimonial added.', 'success');
-  }
-
-  setData('inferno_testimonials', items);
-  renderTestimonials();
-  clearTestimonialForm();
-}
-
-function editTestimonial(id) {
-  const items = getData('inferno_testimonials') || [];
-  const t = items.find(x => x.id === id);
-  if (!t) return;
-  document.getElementById('test-id').value = t.id;
-  document.getElementById('test-name').value = t.name;
-  document.getElementById('test-role').value = t.role;
-  document.getElementById('test-quote').value = t.quote;
-}
-
-function deleteTestimonial(id) {
-  if (!confirm('Delete this testimonial?')) return;
-  let items = getData('inferno_testimonials') || [];
-  items = items.filter(t => t.id !== id);
-  setData('inferno_testimonials', items);
-  renderTestimonials();
-}
-
-function clearTestimonialForm() {
-  ['test-id','test-name','test-role','test-quote'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
-}
-
-/* ════════════════════════���������═════════════════
-   SERVICES — Render & CRUD
-══════════════════════════════════════════ */
-function renderServices() {
-  const items = getData('inferno_services') || [];
-  const list  = document.getElementById('servicesList');
-  if (!list) return;
-
-  if (items.length === 0) {
-    list.innerHTML = '<p style="color:var(--grey-400);">No services yet.</p>';
-    return;
-  }
-
-  list.innerHTML = items.map(s => `
-    <div class="item-row">
-      <div class="item-row__info">
-        <div class="item-row__title">${escHtml(s.name)}</div>
-        <div class="item-row__meta">${escHtml(s.price)} · ${escHtml(s.turnaround)} ${s.featured ? '· <span style="color:var(--ember)">Featured</span>' : ''}</div>
-      </div>
-      <div class="item-row__actions">
-        <button class="btn btn--outline btn--sm" onclick="editService(${s.id})">Edit</button>
-        <button class="btn btn--danger btn--sm" onclick="deleteService(${s.id})">Delete</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function saveService() {
-  const id    = parseInt(document.getElementById('svc-id').value) || null;
-  const name  = document.getElementById('svc-name').value.trim();
-  const price = document.getElementById('svc-price').value.trim();
-  const turn  = document.getElementById('svc-turn').value.trim();
-  const desc  = document.getElementById('svc-desc').value.trim();
-  const feat  = document.getElementById('svc-featured').checked;
-
-  if (!name || !price) { alert('Name and price are required.'); return; }
-
-  let items = getData('inferno_services') || [];
-
-  if (id) {
-    items = items.map(s => s.id === id ? { ...s, name, price, turnaround: turn, description: desc, featured: feat } : s);
-    showAlert('svcAlert', 'Service updated.', 'success');
-  } else {
-    items.push({ id: Date.now(), name, price, turnaround: turn, description: desc, featured: feat });
-    showAlert('svcAlert', 'Service added.', 'success');
-  }
-
-  setData('inferno_services', items);
-  renderServices();
-  clearServiceForm();
 }
 
 function editService(id) {
-  const items = getData('inferno_services') || [];
-  const s = items.find(x => x.id === id);
-  if (!s) return;
-  document.getElementById('svc-id').value = s.id;
-  document.getElementById('svc-name').value = s.name;
-  document.getElementById('svc-price').value = s.price;
-  document.getElementById('svc-turn').value = s.turnaround;
-  document.getElementById('svc-desc').value = s.description;
-  document.getElementById('svc-featured').checked = s.featured;
+  window.fetchServices().then(items => {
+    const s = items.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('svc-id').value   = s.id;
+    document.getElementById('svc-name').value = s.name;
+    document.getElementById('svc-price').value = s.base_price || '';
+    document.getElementById('svc-turn').value  = s.duration_hours || '';
+    document.getElementById('svc-desc').value  = s.description || '';
+    if (document.getElementById('svc-featured'))
+      document.getElementById('svc-featured').checked = s.is_active;
+  });
 }
 
-function deleteService(id) {
+async function removeService(id) {
   if (!confirm('Delete this service?')) return;
-  let items = getData('inferno_services') || [];
-  items = items.filter(s => s.id !== id);
-  setData('inferno_services', items);
-  renderServices();
+  await window.deleteService(id);
+  loadServices();
 }
 
 function clearServiceForm() {
@@ -473,367 +254,381 @@ function clearServiceForm() {
     if (el) el.value = '';
   });
   const feat = document.getElementById('svc-featured');
+  if (feat) feat.checked = true;
+}
+
+/* ══════════════════════════════════════════
+   TESTIMONIALS — Supabase CRUD
+══════════════════════════════════════════ */
+async function loadTestimonials() {
+  const list = document.getElementById('testimonialsList');
+  if (!list) return;
+
+  list.innerHTML = '<p style="color:var(--grey-400);">Loading...</p>';
+
+  try {
+    const items = await window.fetchTestimonials();
+
+    if (!items || items.length === 0) {
+      list.innerHTML = '<p style="color:var(--grey-400);">No testimonials yet.</p>';
+      return;
+    }
+
+    list.innerHTML = items.map(t => `
+      <div class="item-row">
+        <div class="item-row__info">
+          <div class="item-row__title">${escHtml(t.client_name)}</div>
+          <div class="item-row__meta">${escHtml(t.client_title || '')} ${t.is_featured ? '· <span style="color:var(--ember)">Featured</span>' : ''}</div>
+          <div style="font-size:0.8rem; color:var(--grey-500); margin-top:4px;">"${escHtml((t.quote || '').substring(0, 80))}..."</div>
+        </div>
+        <div class="item-row__actions">
+          <button class="btn btn--outline btn--sm" onclick="editTestimonial('${t.id}')">Edit</button>
+          <button class="btn btn--danger btn--sm" onclick="removeTestimonial('${t.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('[v0] Error loading testimonials:', err);
+  }
+}
+
+async function saveTestimonial() {
+  const id    = document.getElementById('test-id')?.value;
+  const name  = document.getElementById('test-name')?.value.trim();
+  const role  = document.getElementById('test-role')?.value.trim();
+  const quote = document.getElementById('test-quote')?.value.trim();
+  const featured = document.getElementById('test-featured')?.checked ?? false;
+
+  if (!name || !quote) { alert('Name and quote are required.'); return; }
+
+  const payload = {
+    client_name: name,
+    client_title: role,
+    quote,
+    is_featured: featured,
+    is_approved: true,
+  };
+
+  try {
+    if (id) {
+      await window.updateTestimonial(id, payload);
+      showAlert('testAlert', 'Testimonial updated.', 'success');
+    } else {
+      await window.createTestimonial(payload);
+      showAlert('testAlert', 'Testimonial added.', 'success');
+    }
+    clearTestimonialForm();
+    loadTestimonials();
+  } catch (err) {
+    console.error('[v0] Error saving testimonial:', err);
+    showAlert('testAlert', 'Error saving testimonial.', 'error');
+  }
+}
+
+function editTestimonial(id) {
+  window.fetchTestimonials().then(items => {
+    const t = items.find(x => x.id === id);
+    if (!t) return;
+    document.getElementById('test-id').value    = t.id;
+    document.getElementById('test-name').value  = t.client_name;
+    document.getElementById('test-role').value  = t.client_title || '';
+    document.getElementById('test-quote').value = t.quote;
+    if (document.getElementById('test-featured'))
+      document.getElementById('test-featured').checked = t.is_featured;
+  });
+}
+
+async function removeTestimonial(id) {
+  if (!confirm('Delete this testimonial?')) return;
+  await window.deleteTestimonial(id);
+  loadTestimonials();
+}
+
+function clearTestimonialForm() {
+  ['test-id','test-name','test-role','test-quote'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const feat = document.getElementById('test-featured');
   if (feat) feat.checked = false;
 }
 
 /* ══════════════════════════════════════════
-   GALLERY — Render & CRUD
+   BOOKINGS — Supabase CRUD
 ══════════════════════════════════════════ */
-function renderGallery() {
-  const items = getData('inferno_gallery') || [];
-  const list  = document.getElementById('galleryList');
-  if (!list) return;
+async function loadBookings() {
+  const tbody = document.getElementById('bookingsTableBody');
+  if (!tbody) return;
 
-  if (items.length === 0) {
-    list.innerHTML = '<p style="color:var(--grey-400);">No gallery items yet.</p>';
-    return;
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:var(--grey-400);">Loading...</td></tr>';
+
+  try {
+    const bookings = await window.fetchBookings();
+
+    if (!bookings || bookings.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:var(--grey-400); text-align:center; padding:32px;">No bookings yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = bookings.map(b => `
+      <tr>
+        <td><strong>${escHtml(b.client_name)}</strong></td>
+        <td>${escHtml(b.client_email)}</td>
+        <td>${escHtml(b.services?.name || '—')}</td>
+        <td>${b.event_date ? new Date(b.event_date).toLocaleDateString() : '—'}</td>
+        <td><span class="badge badge--${b.status}">${escHtml(b.status)}</span></td>
+        <td>
+          <select onchange="updateStatus('${b.id}', this.value)" style="font-size:0.8rem; padding:4px 8px; border-radius:4px; border:1px solid var(--grey-200);">
+            ${['pending','confirmed','in-progress','completed','cancelled'].map(s =>
+              `<option value="${s}" ${b.status === s ? 'selected' : ''}>${s}</option>`
+            ).join('')}
+          </select>
+          <button class="btn btn--danger btn--sm" style="margin-left:4px;" onclick="removeBooking('${b.id}')">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('[v0] Error loading bookings:', err);
+    tbody.innerHTML = '<tr><td colspan="6" style="color:red; text-align:center; padding:32px;">Failed to load bookings.</td></tr>';
   }
-
-  list.innerHTML = items.map(g => `
-    <div class="item-row">
-      <div style="width:48px; height:48px; border-radius:8px; overflow:hidden; flex-shrink:0;">
-        <img src="../img/${escHtml(g.filename)}" alt="${escHtml(g.title)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" />
-      </div>
-      <div class="item-row__info">
-        <div class="item-row__title">${escHtml(g.title)}</div>
-        <div class="item-row__meta">${escHtml(g.category)} · ${escHtml(g.filename)}</div>
-      </div>
-      <div class="item-row__actions">
-        <button class="btn btn--outline btn--sm" onclick="editGalleryItem(${g.id})">Edit</button>
-        <button class="btn btn--danger btn--sm" onclick="deleteGalleryItem(${g.id})">Delete</button>
-      </div>
-    </div>
-  `).join('');
 }
 
-function saveGalleryItem() {
-  const id       = parseInt(document.getElementById('gal-id').value) || null;
-  const title    = document.getElementById('gal-title').value.trim();
-  const cat      = document.getElementById('gal-cat').value.trim();
-  const filename = document.getElementById('gal-filename').value.trim();
-
-  if (!title || !filename) { alert('Title and filename are required.'); return; }
-
-  let items = getData('inferno_gallery') || [];
-
-  if (id) {
-    items = items.map(g => g.id === id ? { ...g, title, category: cat, filename } : g);
-    showAlert('galAlert', 'Gallery item updated.', 'success');
-  } else {
-    items.push({ id: Date.now(), title, category: cat, filename });
-    showAlert('galAlert', 'Gallery item added.', 'success');
+async function updateStatus(id, status) {
+  try {
+    await window.updateBookingStatus(id, status);
+    showAlert('bookingsAlert', 'Booking status updated.', 'success');
+    renderStats();
+  } catch (err) {
+    console.error('[v0] Error updating booking:', err);
   }
-
-  setData('inferno_gallery', items);
-  renderGallery();
-  renderStats();
-  clearGalleryForm();
 }
 
-function editGalleryItem(id) {
-  const items = getData('inferno_gallery') || [];
-  const g = items.find(x => x.id === id);
-  if (!g) return;
-  document.getElementById('gal-id').value = g.id;
-  document.getElementById('gal-title').value = g.title;
-  document.getElementById('gal-cat').value = g.category;
-  document.getElementById('gal-filename').value = g.filename;
-}
-
-function deleteGalleryItem(id) {
-  if (!confirm('Delete this gallery item?')) return;
-  let items = getData('inferno_gallery') || [];
-  items = items.filter(g => g.id !== id);
-  setData('inferno_gallery', items);
-  renderGallery();
-  renderStats();
-}
-
-function clearGalleryForm() {
-  ['gal-id','gal-title','gal-cat','gal-filename'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-  });
+async function removeBooking(id) {
+  if (!confirm('Delete this booking?')) return;
+  // deleteBooking is already on window from supabase-client.js — use a local wrapper name
+  try {
+    const { error } = await window.supabaseClient.from('bookings').delete().eq('id', id);
+    if (error) throw error;
+    loadBookings();
+    renderStats();
+  } catch (err) {
+    console.error('[v0] Error deleting booking:', err);
+  }
 }
 
 /* ══════════════════════════════════════════
-   SETTINGS
+   GALLERY / MEDIA — Supabase + Cloudinary
 ══════════════════════════════════════════ */
-function handleResetDefaults() {
-  if (!confirm('This will reset ALL content to defaults and cannot be undone. Continue?')) return;
-  resetToDefaults();
-  renderAll();
-  showAlert('settingsAlert', 'Content reset to defaults successfully.', 'success');
-}
-
-/* ══════════════════════════════════════════
-   SUPABASE INTEGRATION
-══════════════════════════════════════════ */
-
-/**
- * Handle logo upload to Cloudinary and save to Supabase
- */
-async function handleLogoUpload() {
-  try {
-    const fileInput = document.getElementById('logoFile');
-    const statusEl = document.getElementById('logoUploadStatus');
-    const uploadBtn = document.getElementById('uploadLogoButton');
-
-    if (!fileInput.files.length) {
-      alert('Please select a logo file');
-      return;
-    }
-
-    const file = fileInput.files[0];
-
-    // Validate file (use simple validation for images only)
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-
-    if (!allowedTypes.includes(file.type)) {
-      alert('Invalid file type. Please upload: JPEG, PNG, WebP, or GIF');
-      return;
-    }
-
-    if (file.size > maxSize) {
-      alert('File size exceeds 10MB limit');
-      return;
-    }
-
-    // Show loading state
-    uploadBtn.disabled = true;
-    statusEl.textContent = 'Uploading logo to Cloudinary...';
-    statusEl.style.color = 'var(--grey-500)';
-
-    // Upload to Cloudinary
-    const cloudinaryResult = await uploadToCloudinary(file, 'inferno_pictures_logos');
-
-    statusEl.textContent = 'Saving to database...';
-
-    // Save logo URL to Supabase
-    const result = await window.updateLogoUrl(cloudinaryResult.url);
-
-    if (result) {
-      statusEl.textContent = '✓ Logo uploaded successfully!';
-      statusEl.style.color = 'var(--ember)';
-
-      // Clear file input
-      fileInput.value = '';
-
-      // Update preview
-      loadLogoPreview();
-
-      // Reload frontend to show updated logo
-      window.opener?.location.reload();
-
-      setTimeout(() => {
-        statusEl.textContent = '';
-      }, 3000);
-    } else {
-      throw new Error('Failed to save logo to database');
-    }
-  } catch (err) {
-    console.error('[v0] Logo upload error:', err);
-    const statusEl = document.getElementById('logoUploadStatus');
-    statusEl.textContent = '✗ Upload failed: ' + err.message;
-    statusEl.style.color = 'var(--red-500)';
-  } finally {
-    document.getElementById('uploadLogoButton').disabled = false;
-  }
-}
-
-/**
- * Load logo preview from Supabase
- */
-async function loadLogoPreview() {
-  try {
-    const profile = await window.fetchPhotographerProfile();
-    const preview = document.getElementById('logoPreview');
-    const noLogo = document.getElementById('noLogo');
-
-    if (profile?.logo_url) {
-      preview.src = profile.logo_url;
-      preview.style.display = 'block';
-      noLogo.style.display = 'none';
-    } else {
-      preview.style.display = 'none';
-      noLogo.style.display = 'block';
-    }
-  } catch (err) {
-    console.error('[v0] Error loading logo preview:', err);
-  }
-}
-
-/**
- * Handle photographer profile save (admin panel)
- */
-async function handleSaveProfile() {
-  try {
-    const profileData = {
-      name: (document.getElementById('profileName')?.value || '').trim(),
-      bio: (document.getElementById('profileBio')?.value || '').trim(),
-      location: (document.getElementById('profileLocation')?.value || '').trim(),
-      services_offered: (document.getElementById('profileServices')?.value || '')
-        .split(',')
-        .map(s => s.trim())
-        .filter(s => s),
-      instagram_handle: (document.getElementById('profileInstagram')?.value || '').trim(),
-      twitter_handle: (document.getElementById('profileTwitter')?.value || '').trim(),
-      linkedin_handle: (document.getElementById('profileLinkedin')?.value || '').trim(),
-      portfolio_url: (document.getElementById('profilePortfolio')?.value || '').trim(),
-    };
-
-    if (!profileData.name) {
-      alert('Please enter a name');
-      return;
-    }
-
-    console.log('[v0] Saving profile:', profileData);
-    // Call the Supabase save function from supabase-client.js
-    const result = await window.savePhotographerProfile(profileData);
-
-    if (result) {
-      alert('Profile saved successfully!');
-      // Reload the frontend to show updates
-      window.opener?.location.reload();
-    } else {
-      alert('Failed to save profile');
-    }
-  } catch (err) {
-    console.error('[v0] Error saving profile:', err);
-    alert('Error saving profile: ' + err.message);
-  }
-}
-
-/**
- * Upload media item to Cloudinary and save to Supabase
- */
-async function uploadMediaItem() {
-  try {
-    const fileInput = document.getElementById('mediaFile');
-    const caption = (document.getElementById('mediaCaption')?.value || '').trim();
-    const category = (document.getElementById('mediaCategory')?.value || '').trim();
-    const statusEl = document.getElementById('uploadStatus');
-    const uploadBtn = document.getElementById('uploadButton');
-
-    if (!fileInput.files.length) {
-      alert('Please select a file (image or video)');
-      return;
-    }
-
-    if (!category) {
-      alert('Please select a category');
-      return;
-    }
-
-    const file = fileInput.files[0];
-
-    // Validate file
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      alert(validation.error);
-      return;
-    }
-
-    // Show loading state
-    uploadBtn.disabled = true;
-    const uploadType = validation.type === 'video' ? 'video' : 'image';
-    statusEl.textContent = `Uploading ${uploadType} to Cloudinary...`;
-    statusEl.style.color = 'var(--grey-500)';
-
-    // Upload to Cloudinary
-    const cloudinaryResult = await uploadToCloudinary(file, 'inferno_pictures');
-
-    statusEl.textContent = 'Saving to database...';
-
-    // Save to Supabase with media type
-    const defaultCaption = caption || `${category.charAt(0).toUpperCase() + category.slice(1)} ${uploadType === 'video' ? 'Video' : 'Photo'}`;
-    const mediaItem = await window.createMediaItem(
-      cloudinaryResult.url,
-      cloudinaryResult.public_id,
-      category,
-      defaultCaption,
-      cloudinaryResult.resource_type || uploadType
-    );
-
-    if (mediaItem) {
-      statusEl.textContent = `✓ ${uploadType.charAt(0).toUpperCase() + uploadType.slice(1)} uploaded successfully!`;
-      statusEl.style.color = 'var(--ember)';
-
-      // Clear form
-      fileInput.value = '';
-      document.getElementById('mediaCaption').value = '';
-      document.getElementById('mediaCategory').value = '';
-
-      // Reload media gallery
-      await loadMediaGallery();
-
-      // Reload frontend gallery
-      window.opener?.location.reload();
-
-      setTimeout(() => {
-        statusEl.textContent = '';
-      }, 3000);
-    } else {
-      throw new Error('Failed to save to database');
-    }
-  } catch (err) {
-    console.error('[v0] Upload error:', err);
-    const statusEl = document.getElementById('uploadStatus');
-    statusEl.textContent = '✗ Upload failed: ' + err.message;
-    statusEl.style.color = 'var(--red-500)';
-  } finally {
-    document.getElementById('uploadButton').disabled = false;
-  }
-}
-
-/**
- * Load media gallery in admin panel
- */
 async function loadMediaGallery() {
+  const gallery = document.getElementById('mediaGallery');
+  if (!gallery) return;
+
+  gallery.innerHTML = '<p style="color:var(--grey-400); grid-column:1/-1;">Loading...</p>';
+
   try {
     const mediaItems = await window.fetchAllMedia();
-    const gallery = document.getElementById('mediaGallery');
 
-    if (!gallery) return;
-
-    if (mediaItems.length === 0) {
-      gallery.innerHTML = '<p style="color:var(--grey-400); grid-column:1/-1;">No media uploaded yet</p>';
+    if (!mediaItems || mediaItems.length === 0) {
+      gallery.innerHTML = '<p style="color:var(--grey-400); grid-column:1/-1;">No media uploaded yet.</p>';
       return;
     }
 
     gallery.innerHTML = mediaItems.map(item => `
       <div style="position:relative; overflow:hidden; border-radius:8px; aspect-ratio:1;">
-        <img src="${item.url}" alt="${item.caption}" style="width:100%; height:100%; object-fit:cover;" />
+        ${item.media_type === 'video'
+          ? `<video src="${item.url}" style="width:100%; height:100%; object-fit:cover;" muted></video>`
+          : `<img src="${item.url}" alt="${escHtml(item.caption || '')}" style="width:100%; height:100%; object-fit:cover;" />`
+        }
         <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(0,0,0,0.7)); padding:8px; color:white; font-size:0.75rem;">
-          <strong>${item.caption || 'Untitled'}</strong>
+          <strong>${escHtml(item.caption || 'Untitled')}</strong>
+          <span style="opacity:0.7; margin-left:6px;">${escHtml(item.category)}</span>
         </div>
         <button onclick="deleteMediaFromAdmin('${item.id}')" style="position:absolute; top:4px; right:4px; background:rgba(255,77,46,0.9); color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.75rem;">Delete</button>
       </div>
     `).join('');
   } catch (err) {
     console.error('[v0] Error loading media gallery:', err);
+    gallery.innerHTML = '<p style="color:red; grid-column:1/-1;">Failed to load media.</p>';
   }
 }
 
-/**
- * Delete media item from admin panel
- */
-async function deleteMediaFromAdmin(mediaId) {
-  if (!confirm('Delete this image?')) return;
+async function uploadMediaItem() {
+  const fileInput = document.getElementById('mediaFile');
+  const caption   = (document.getElementById('mediaCaption')?.value || '').trim();
+  const category  = (document.getElementById('mediaCategory')?.value || '').trim();
+  const statusEl  = document.getElementById('uploadStatus');
+  const uploadBtn = document.getElementById('uploadButton');
 
+  if (!fileInput?.files.length) { alert('Please select a file.'); return; }
+  if (!category) { alert('Please select a category.'); return; }
+
+  const file = fileInput.files[0];
+  const validation = validateImageFile(file);
+  if (!validation.valid) { alert(validation.error); return; }
+
+  uploadBtn.disabled = true;
+  statusEl.textContent = 'Uploading to Cloudinary...';
+  statusEl.style.color = 'var(--grey-500)';
+
+  try {
+    const cloudinaryResult = await uploadToCloudinary(file, 'inferno_pictures');
+    statusEl.textContent = 'Saving to database...';
+
+    const mediaItem = await window.createMediaItem(
+      cloudinaryResult.url,
+      cloudinaryResult.public_id,
+      category,
+      caption || `${category} ${validation.type === 'video' ? 'Video' : 'Photo'}`,
+      cloudinaryResult.resource_type || validation.type
+    );
+
+    if (mediaItem) {
+      statusEl.textContent = '✓ Uploaded successfully!';
+      statusEl.style.color = 'var(--ember)';
+      fileInput.value = '';
+      if (document.getElementById('mediaCaption')) document.getElementById('mediaCaption').value = '';
+      if (document.getElementById('mediaCategory')) document.getElementById('mediaCategory').value = '';
+      await loadMediaGallery();
+      renderStats();
+      setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    } else {
+      throw new Error('Failed to save to database');
+    }
+  } catch (err) {
+    console.error('[v0] Upload error:', err);
+    statusEl.textContent = '✗ Upload failed: ' + err.message;
+    statusEl.style.color = 'var(--red-500)';
+  } finally {
+    uploadBtn.disabled = false;
+  }
+}
+
+async function deleteMediaFromAdmin(mediaId) {
+  if (!confirm('Delete this media item?')) return;
   try {
     const success = await window.deleteMediaItem(mediaId);
     if (success) {
-      alert('Image deleted');
       await loadMediaGallery();
-      window.opener?.location.reload();
+      renderStats();
     } else {
-      alert('Failed to delete image');
+      alert('Failed to delete media.');
     }
   } catch (err) {
     console.error('[v0] Error deleting media:', err);
-    alert('Error: ' + err.message);
+  }
+}
+
+/* ══════════════════════════════════════════
+   SETTINGS — Profile (Supabase)
+══════════════════════════════════════════ */
+async function loadProfileForm() {
+  try {
+    const profile = await window.fetchPhotographerProfile();
+    if (!profile) return;
+
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('profileName',      profile.name);
+    set('profileBio',       profile.bio);
+    set('profileLocation',  profile.location);
+    set('profileInstagram', profile.instagram_handle);
+    set('profileTwitter',   profile.twitter_handle);
+    set('profileLinkedin',  profile.linkedin_handle);
+    set('profilePortfolio', profile.portfolio_url);
+    if (document.getElementById('profileServices'))
+      document.getElementById('profileServices').value = (profile.services_offered || []).join(', ');
+
+    loadLogoPreview();
+  } catch (err) {
+    console.error('[v0] Error loading profile form:', err);
+  }
+}
+
+async function handleSaveProfile() {
+  const profileData = {
+    name:              (document.getElementById('profileName')?.value      || '').trim(),
+    bio:               (document.getElementById('profileBio')?.value       || '').trim(),
+    location:          (document.getElementById('profileLocation')?.value  || '').trim(),
+    instagram_handle:  (document.getElementById('profileInstagram')?.value || '').trim(),
+    twitter_handle:    (document.getElementById('profileTwitter')?.value   || '').trim(),
+    linkedin_handle:   (document.getElementById('profileLinkedin')?.value  || '').trim(),
+    portfolio_url:     (document.getElementById('profilePortfolio')?.value || '').trim(),
+    services_offered:  (document.getElementById('profileServices')?.value  || '')
+                         .split(',').map(s => s.trim()).filter(Boolean),
+  };
+
+  if (!profileData.name) { alert('Name is required.'); return; }
+
+  try {
+    const result = await window.savePhotographerProfile(profileData);
+    if (result) {
+      showAlert('settingsAlert', 'Profile saved successfully!', 'success');
+    } else {
+      showAlert('settingsAlert', 'Failed to save profile.', 'error');
+    }
+  } catch (err) {
+    console.error('[v0] Error saving profile:', err);
+    showAlert('settingsAlert', 'Error: ' + err.message, 'error');
+  }
+}
+
+async function handleLogoUpload() {
+  const fileInput = document.getElementById('logoFile');
+  const statusEl  = document.getElementById('logoUploadStatus');
+  const uploadBtn = document.getElementById('uploadLogoButton');
+
+  if (!fileInput?.files.length) { alert('Please select a logo file.'); return; }
+
+  const file = fileInput.files[0];
+  const maxSize = 10 * 1024 * 1024;
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+  if (!allowedTypes.includes(file.type)) { alert('Please upload a JPEG, PNG, WebP, or GIF.'); return; }
+  if (file.size > maxSize) { alert('File size exceeds 10MB.'); return; }
+
+  uploadBtn.disabled = true;
+  statusEl.textContent = 'Uploading to Cloudinary...';
+  statusEl.style.color = 'var(--grey-500)';
+
+  try {
+    const cloudinaryResult = await uploadToCloudinary(file, 'inferno_pictures_logos');
+    statusEl.textContent = 'Saving to database...';
+
+    const result = await window.updateLogoUrl(cloudinaryResult.url);
+    if (result) {
+      statusEl.textContent = '✓ Logo uploaded successfully!';
+      statusEl.style.color = 'var(--ember)';
+      fileInput.value = '';
+      loadLogoPreview();
+      setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    } else {
+      throw new Error('Failed to save logo URL to database');
+    }
+  } catch (err) {
+    console.error('[v0] Logo upload error:', err);
+    statusEl.textContent = '✗ Upload failed: ' + err.message;
+    statusEl.style.color = 'var(--red-500)';
+  } finally {
+    uploadBtn.disabled = false;
+  }
+}
+
+async function loadLogoPreview() {
+  try {
+    const profile = await window.fetchPhotographerProfile();
+    const preview = document.getElementById('logoPreview');
+    const noLogo  = document.getElementById('noLogo');
+    if (!preview) return;
+
+    if (profile?.logo_url) {
+      preview.src = profile.logo_url;
+      preview.style.display = 'block';
+      if (noLogo) noLogo.style.display = 'none';
+    } else {
+      preview.style.display = 'none';
+      if (noLogo) noLogo.style.display = 'block';
+    }
+  } catch (err) {
+    console.error('[v0] Error loading logo preview:', err);
   }
 }
 
@@ -857,60 +652,41 @@ function showAlert(elId, msg, type = 'success') {
   setTimeout(() => { el.style.display = 'none'; }, 3000);
 }
 
-function renderAll() {
-  renderStats();
-  renderMessages();
-  renderProjects();
-  renderTestimonials();
-  renderServices();
-  renderGallery();
-}
-
 /* ══════════════════════════════════════════
-   INIT — Called on dashboard load
+   INIT — Dashboard load
 ══════════════════════════════════════════ */
-function initDashboard() {
+async function initDashboard() {
   if (!guardAuth()) return;
 
-  // Seed default data on first visit
-  seedDefaults();
-
-  // Set admin username in UI
   const userEl = document.getElementById('adminUser');
   if (userEl) userEl.textContent = sessionStorage.getItem('inferno_admin_user') || 'admin';
 
-  // Render all sections
-  renderAll();
-
-  // Show dashboard panel by default
   switchPanel('dashboard');
+  await renderStats();
 }
 
-/* Make admin functions globally accessible */
-window.switchPanel = switchPanel;
-window.handleLogout = handleLogout;
-window.handleSaveProfile = handleSaveProfile;
-window.handleLogoUpload = handleLogoUpload;
-window.loadLogoPreview = loadLogoPreview;
-window.uploadMediaItem = uploadMediaItem;
-window.loadMediaGallery = loadMediaGallery;
+/* ══════════════════════════════════════════
+   GLOBAL EXPORTS
+══════════════════════════════════════════ */
+window.switchPanel         = switchPanel;
+window.handleLogout        = handleLogout;
+window.handleSaveProfile   = handleSaveProfile;
+window.handleLogoUpload    = handleLogoUpload;
+window.loadLogoPreview     = loadLogoPreview;
+window.loadProfileForm     = loadProfileForm;
+window.uploadMediaItem     = uploadMediaItem;
+window.loadMediaGallery    = loadMediaGallery;
 window.deleteMediaFromAdmin = deleteMediaFromAdmin;
-window.saveProject = saveProject;
-window.editProject = editProject;
-window.deleteProject = deleteProject;
-window.saveGalleryItem = saveGalleryItem;
-window.editGalleryItem = editGalleryItem;
-window.deleteGalleryItem = deleteGalleryItem;
-window.saveTestimonial = saveTestimonial;
-window.editTestimonial = editTestimonial;
-window.deleteTestimonial = deleteTestimonial;
-window.saveService = saveService;
-window.editService = editService;
-window.deleteService = deleteService;
-window.markRead = markRead;
-window.deleteMessage = deleteMessage;
-window.saveBooking = saveBooking;
-window.editBooking = editBooking;
-window.deleteBooking = deleteBooking;
-window.handleResetDefaults = handleResetDefaults;
-window.clearAllMessages = clearAllMessages;
+window.saveService         = saveService;
+window.editService         = editService;
+window.removeService       = removeService;
+window.saveTestimonial     = saveTestimonial;
+window.editTestimonial     = editTestimonial;
+window.removeTestimonial   = removeTestimonial;
+window.loadBookings        = loadBookings;
+window.updateStatus        = updateStatus;
+window.removeBooking       = removeBooking;
+window.markRead            = markRead;
+window.deleteMessage       = deleteMessage;
+window.loadMessages        = loadMessages;
+window.renderStats         = renderStats;

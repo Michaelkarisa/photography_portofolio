@@ -24,7 +24,7 @@
         <!-- Logo -->
        <!-- Logo -->
         <a href="index.html" class="header__logo">
-          <span>Inferno</span> Photography
+          <span>Inferno</span> Pictures
         </a>
         <!-- Desktop Nav -->
         <nav class="header__nav" id="mainNav" aria-label="Main navigation">
@@ -581,28 +581,42 @@
     reveals.forEach(el => observer.observe(el));
 
     /* ── Contact Form handler (saves to localStorage for admin to read) ── */
-    function handleContact() {
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const service = document.getElementById('service').value;
-      const message = document.getElementById('message').value.trim();
 
-      if (!name || !email || !message) {
-        alert('Please fill in your name, email, and message.');
-        return;
-      }
+// WITH THIS:
+async function handleContact() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const service = document.getElementById('service').value;
+  const message = document.getElementById('message').value.trim();
+  const btn = document.querySelector('.contact-form .btn--primary');
 
-      const inquiry = { id: Date.now(), name, email, service, message, date: new Date().toLocaleDateString() };
-      const existing = JSON.parse(localStorage.getItem('inferno_messages') || '[]');
-      existing.push(inquiry);
-      localStorage.setItem('inferno_messages', JSON.stringify(existing));
+  if (!name || !email || !message) {
+    alert('Please fill in your name, email, and message.');
+    return;
+  }
 
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    const result = await window.submitMessage({ name, email, subject: service, message });
+    if (result) {
       alert(`Thank you, ${name}! Your message has been sent. I'll be in touch within 24 hours.`);
       document.getElementById('name').value = '';
       document.getElementById('email').value = '';
       document.getElementById('service').value = '';
       document.getElementById('message').value = '';
+    } else {
+      alert('Something went wrong. Please try again.');
     }
+  } catch (err) {
+    console.error('[v0] Contact form error:', err);
+    alert('Failed to send message. Please check your connection.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Message →';
+  }
+}
 
     /* ── Load dynamic content from localStorage (admin edits) ── */
     document.addEventListener('DOMContentLoaded', () => {
