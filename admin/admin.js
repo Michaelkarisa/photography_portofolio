@@ -170,6 +170,24 @@ function renderStats() {
   document.getElementById('stat-new').textContent = newMessages;
 }
 
+
+async function saveBooking() {
+  const id = document.getElementById('bookingId')?.value;
+  const status = document.getElementById('bookingStatus')?.value;
+
+  try {
+    if (id) {
+      await window.updateBookingStatus(id, status);
+    }
+    await loadBookings(); // refresh the list
+    closeModal('bookingModal'); // close modal if you have one
+    showNotification('Booking updated successfully!');
+  } catch (err) {
+    console.error('[v0] Error saving booking:', err);
+    showNotification('Error saving booking.', 'error');
+  }
+}
+
 /* ══════════════════════════════════════════
    MESSAGES — Render table
 ══════════════════════════════════════════ */
