@@ -25,7 +25,7 @@ async function fetchPhotographerProfile() {
       .from('users')
       .select('*')
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('[v0] Error fetching photographer profile:', error);
