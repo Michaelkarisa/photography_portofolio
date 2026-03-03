@@ -377,7 +377,7 @@ function clearTestimonialForm() {
   });
 }
 
-/* ════════════════════════�����═════════════════
+/* ════════════════════════�������═════════════════
    SERVICES — Render & CRUD
 ══════════════════════════════════════════ */
 function renderServices() {
@@ -551,6 +551,100 @@ function handleResetDefaults() {
 /* ══════════════════════════════════════════
    SUPABASE INTEGRATION
 ══════════════════════════════════════════ */
+
+/**
+ * Handle logo upload to Cloudinary and save to Supabase
+ */
+async function handleLogoUpload() {
+  try {
+    const fileInput = document.getElementById('logoFile');
+    const statusEl = document.getElementById('logoUploadStatus');
+    const uploadBtn = document.getElementById('uploadLogoButton');
+
+    if (!fileInput.files.length) {
+      alert('Please select a logo file');
+      return;
+    }
+
+    const file = fileInput.files[0];
+
+    // Validate file (use simple validation for images only)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert('Invalid file type. Please upload: JPEG, PNG, WebP, or GIF');
+      return;
+    }
+
+    if (file.size > maxSize) {
+      alert('File size exceeds 10MB limit');
+      return;
+    }
+
+    // Show loading state
+    uploadBtn.disabled = true;
+    statusEl.textContent = 'Uploading logo to Cloudinary...';
+    statusEl.style.color = 'var(--grey-500)';
+
+    // Upload to Cloudinary
+    const cloudinaryResult = await uploadToCloudinary(file, 'inferno_pictures_logos');
+
+    statusEl.textContent = 'Saving to database...';
+
+    // Save logo URL to Supabase
+    const result = await updateLogoUrl(cloudinaryResult.url);
+
+    if (result) {
+      statusEl.textContent = '✓ Logo uploaded successfully!';
+      statusEl.style.color = 'var(--ember)';
+
+      // Clear file input
+      fileInput.value = '';
+
+      // Update preview
+      loadLogoPreview();
+
+      // Reload frontend to show updated logo
+      window.opener?.location.reload();
+
+      setTimeout(() => {
+        statusEl.textContent = '';
+      }, 3000);
+    } else {
+      throw new Error('Failed to save logo to database');
+    }
+  } catch (err) {
+    console.error('[v0] Logo upload error:', err);
+    const statusEl = document.getElementById('logoUploadStatus');
+    statusEl.textContent = '✗ Upload failed: ' + err.message;
+    statusEl.style.color = 'var(--red-500)';
+  } finally {
+    document.getElementById('uploadLogoButton').disabled = false;
+  }
+}
+
+/**
+ * Load logo preview from Supabase
+ */
+async function loadLogoPreview() {
+  try {
+    const profile = await fetchPhotographerProfile();
+    const preview = document.getElementById('logoPreview');
+    const noLogo = document.getElementById('noLogo');
+
+    if (profile?.logo_url) {
+      preview.src = profile.logo_url;
+      preview.style.display = 'block';
+      noLogo.style.display = 'none';
+    } else {
+      preview.style.display = 'none';
+      noLogo.style.display = 'block';
+    }
+  } catch (err) {
+    console.error('[v0] Error loading logo preview:', err);
+  }
+}
 
 /**
  * Handle photographer profile save (admin panel)

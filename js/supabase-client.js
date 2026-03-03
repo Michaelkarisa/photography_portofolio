@@ -34,6 +34,45 @@ async function fetchPhotographerProfile() {
 }
 
 /**
+ * Update logo URL in users table
+ */
+async function updateLogoUrl(logoUrl) {
+  try {
+    const { data: existing } = await supabase
+      .from('users')
+      .select('id')
+      .limit(1)
+      .single();
+
+    let result;
+    if (existing) {
+      // Update existing
+      result = await supabase
+        .from('users')
+        .update({ logo_url: logoUrl })
+        .eq('id', existing.id)
+        .select();
+    } else {
+      // Create new user record with logo
+      result = await supabase
+        .from('users')
+        .insert([{ logo_url: logoUrl }])
+        .select();
+    }
+
+    if (result.error) {
+      console.error('[v0] Error updating logo:', result.error);
+      return null;
+    }
+
+    return result.data?.[0] || null;
+  } catch (err) {
+    console.error('[v0] Exception updating logo:', err);
+    return null;
+  }
+}
+
+/**
  * Fetch all media items from media table
  */
 async function fetchAllMedia() {

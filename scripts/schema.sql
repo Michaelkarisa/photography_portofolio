@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   name TEXT NOT NULL,
   bio TEXT,
   location TEXT,
+  logo_url TEXT, -- Company/brand logo from Cloudinary
   avatar_url TEXT,
   services_offered TEXT[], -- Array of service names
   instagram_handle TEXT,

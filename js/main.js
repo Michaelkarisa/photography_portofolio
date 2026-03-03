@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('[v0] Initializing Inferno Pictures...');
   
   try {
+    // Load logo
+    await loadLogo();
+    
     // Fetch and display photographer profile
     await loadPhotographerProfile();
     
@@ -30,6 +33,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('[v0] Error initializing app:', err);
   }
 });
+
+/**
+ * Load logo from Supabase
+ */
+async function loadLogo() {
+  try {
+    const profile = await fetchPhotographerProfile();
+    
+    if (profile?.logo_url) {
+      const logoImage = document.getElementById('logoImage');
+      const logoFallback = document.getElementById('logoFallback');
+      
+      if (logoImage) {
+        logoImage.src = profile.logo_url;
+        logoImage.style.display = 'block';
+        if (logoFallback) logoFallback.style.display = 'none';
+      }
+    }
+  } catch (err) {
+    console.error('[v0] Error loading logo:', err);
+  }
+}
 
 /**
  * Load photographer profile from Supabase
