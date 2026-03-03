@@ -4,7 +4,7 @@
  */
 
 const CLOUDINARY_CLOUD_NAME = 'dtwfhkkhm';
-const CLOUDINARY_UPLOAD_PRESET = 'inferno_pictures'; // You need to set this in Cloudinary dashboard
+const CLOUDINARY_UPLOAD_PRESET = 'aovvovqk'; // You need to set this in Cloudinary dashboard
 
 /**
  * Upload file (image or video) to Cloudinary using unsigned upload
