@@ -6,6 +6,7 @@
   <title>Inferno Pictures</title>
   <meta name="description" content="Inferno Pictures — Cinematic portrait, editorial, event photography and videography. Burned into memory." />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Cloudinary -->
@@ -21,8 +22,9 @@
       <div class="header__inner">
 
         <!-- Logo -->
-        <a href="index.html" class="header__logo">
-          <span>Inferno</span> Pictures
+        <a href="index.html" class="header__logo" id="headerLogo">
+          <img id="logoImage" src="" alt="Inferno Pictures Logo" style="height:40px; display:none;" />
+          <span id="logoFallback"><span>Inferno</span> Pictures</span>
         </a>
 
         <!-- Desktop Nav -->
@@ -189,7 +191,7 @@
   </section>
 
 
-  <!-- ══════════════════════════════
+  <!-- ═══════════════════���══════════
        ABOUT SECTION
   ══════════════════════════════ -->
   <section class="about section" id="about">
@@ -451,15 +453,23 @@
             </div>
           </div>
 
-          <div class="contact__socials">
-            <p>Follow the Work</p>
-            <div class="social-links">
-              <a href="#" class="social-link" aria-label="Instagram">IG</a>
-              <a href="#" class="social-link" aria-label="LinkedIn">Li</a>
-              <a href="#" class="social-link" aria-label="Twitter/X">X</a>
-              <a href="#" class="social-link" aria-label="Behance">Be</a>
-            </div>
-          </div>
+     <div class="contact__socials">
+  <p>Follow the Work</p>
+  <div class="social-links">
+    <a href="#" class="social-link" aria-label="Instagram">
+      <i class="fab fa-instagram"></i>
+    </a>
+    <a href="#" class="social-link" aria-label="LinkedIn">
+      <i class="fab fa-linkedin-in"></i>
+    </a>
+    <a href="#" class="social-link" aria-label="Twitter/X">
+      <i class="fab fa-x-twitter"></i>
+    </a>
+    <a href="#" class="social-link" aria-label="Behance">
+      <i class="fab fa-behance"></i>
+    </a>
+  </div>
+</div>
         </div>
 
       </div>
@@ -476,7 +486,7 @@
 
         <!-- Brand -->
         <div class="footer__brand">
-          <h3><span>Inferno</span> Pictures</h3>
+          <h3><span>Inferno</span> Photography</h3>
           <p>Cinematic portrait, editorial, and event photography based in Kilifi, Kenya. Every frame is made with intention.</p>
         </div>
 
@@ -517,7 +527,7 @@
       </div>
 
       <div class="footer__bottom">
-        <p>&copy; 2025 Inferno Pictures. All rights reserved.</p>
+        <p>&copy; 2025 Inferno Photography. All rights reserved.</p>
         <p class="footer__sig">Light. Patience. Memory.</p>
       </div>
     </div>

@@ -42,9 +42,11 @@ This guide covers the setup and configuration required to run the Inferno Pictur
 
 ## 2. Cloudinary Setup
 
-### 2.1 Create Upload Preset (REQUIRED)
+### 2.1 Create Upload Presets (REQUIRED)
 
-To use unsigned uploads (uploads without exposing API secret), you must create an upload preset:
+You need TWO upload presets for media and logos:
+
+**First Preset - Media (Images & Videos):**
 
 1. Go to Cloudinary Dashboard → Settings → Upload
 2. Under "Upload presets", click **"Add upload preset"**
@@ -52,6 +54,15 @@ To use unsigned uploads (uploads without exposing API secret), you must create a
    - **Name:** `inferno_pictures`
    - **Signing Mode:** `Unsigned`
    - **Folder:** `inferno_pictures`
+   - Click **"Save"**
+
+**Second Preset - Logos:**
+
+1. Repeat the steps above to create another upload preset
+2. Set the following:
+   - **Name:** `inferno_pictures_logos`
+   - **Signing Mode:** `Unsigned`
+   - **Folder:** `inferno_pictures_logos`
    - Click **"Save"**
 
 ### 2.2 Get Your Cloud Name
@@ -63,7 +74,7 @@ To use unsigned uploads (uploads without exposing API secret), you must create a
    const CLOUDINARY_UPLOAD_PRESET = 'inferno_pictures';
    ```
 
-**⚠️ Important:** The upload preset name must match exactly what you created in Cloudinary.
+**⚠️ Important:** The upload preset names must match exactly what you created in Cloudinary: `inferno_pictures` for media and `inferno_pictures_logos` for logos.
 
 ---
 
@@ -75,12 +86,13 @@ To add sample data to your database:
 2. Insert sample data:
 
 ```sql
--- Insert sample photographer profile
-INSERT INTO users (name, bio, location, services_offered, instagram_handle, twitter_handle, linkedin_handle, portfolio_url)
+-- Insert sample photographer profile with logo
+INSERT INTO users (name, bio, location, logo_url, services_offered, instagram_handle, twitter_handle, linkedin_handle, portfolio_url)
 VALUES (
   'Alex Chen',
   'Editorial photographer capturing moments of truth. Based in Kilifi, creating cinematic frames for brands and publications.',
   'Kilifi, Kenya',
+  'https://res.cloudinary.com/dtwfhkkhm/image/upload/v1/inferno_pictures_logos/logo.png',
   ARRAY['Portrait', 'Editorial', 'Events', 'Videography'],
   'alexchen_photography',
   'alexchen_photos',
@@ -89,9 +101,9 @@ VALUES (
 );
 
 -- Insert sample media items
-INSERT INTO media (url, cloudinary_public_id, category, caption) VALUES
-('https://res.cloudinary.com/dtwfhkkhm/image/upload/v1/inferno_pictures/sample1.jpg', 'inferno_pictures/sample1', 'portrait', 'Studio Portrait Session'),
-('https://res.cloudinary.com/dtwfhkkhm/image/upload/v1/inferno_pictures/sample2.jpg', 'inferno_pictures/sample2', 'editorial', 'Editorial Feature');
+INSERT INTO media (url, cloudinary_public_id, media_type, category, caption) VALUES
+('https://res.cloudinary.com/dtwfhkkhm/image/upload/v1/inferno_pictures/sample1.jpg', 'inferno_pictures/sample1', 'image', 'portrait', 'Studio Portrait Session'),
+('https://res.cloudinary.com/dtwfhkkhm/image/upload/v1/inferno_pictures/sample2.jpg', 'inferno_pictures/sample2', 'image', 'editorial', 'Editorial Feature');
 ```
 
 ---
@@ -108,8 +120,20 @@ INSERT INTO media (url, cloudinary_public_id, category, caption) VALUES
 1. Open `admin/dashboard.html` in your browser
 2. Login with the credentials above
 3. Navigate to:
-   - **Photographer Profile** — Edit your name, bio, location, and social handles
-   - **Media** — Upload images to Cloudinary and save to database
+   - **Photographer Profile** — Upload logo, edit name, bio, location, and social handles
+   - **Media** — Upload images and videos to Cloudinary and save to database
+
+### Uploading Logo
+
+1. Go to **Photographer Profile** panel
+2. Click on the **Logo Upload** card
+3. Select a logo image file:
+   - **Formats:** JPEG, PNG, WebP, GIF
+   - **Size Limit:** Max 10MB
+   - **Recommended:** 300x300px square format for best display
+4. Click **Upload Logo**
+5. The logo is uploaded to Cloudinary and saved to Supabase
+6. The logo appears in the website header (replaces text logo)
 
 ### Uploading Media
 
@@ -163,10 +187,12 @@ project/
 ## 7. Key Features
 
 ### Photographer Profile
+- Upload custom logo (displays in website header)
 - Edit name, bio, location
 - Add social media handles (Instagram, Twitter, LinkedIn, Portfolio)
 - Update services offered
-- Data syncs to hero section and footer
+- Add avatar (profile photo)
+- Data syncs to hero section and throughout website
 
 ### Media Management
 - Upload images and videos directly from admin panel

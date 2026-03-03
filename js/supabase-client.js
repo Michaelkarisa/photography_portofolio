@@ -5,10 +5,16 @@
 
 // Supabase Configuration
 const SUPABASE_URL = 'https://pkeqoyqojprzakncxlyv.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_2wANbLcu4dQeDIKhcdPgeA_FVDa1Bgs';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBrZXFveXFvanByemFrbmN4bHl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM1ODc3NzIsImV4cCI6MjA0OTE2Mzc3Mn0.9QUqEJ8FfO-3d6IxDnLDHN2M8ZCqGrWXL9XkE0yUfMc';
 
-// Initialize Supabase Client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Initialize Supabase Client (store in window to make it global)
+let supabase;
+if (!window.supabaseClient) {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  window.supabaseClient = supabase;
+} else {
+  supabase = window.supabaseClient;
+}
 
 /**
  * Fetch photographer profile from users table
@@ -29,6 +35,45 @@ async function fetchPhotographerProfile() {
     return data;
   } catch (err) {
     console.error('[v0] Exception fetching photographer profile:', err);
+    return null;
+  }
+}
+
+/**
+ * Update logo URL in users table
+ */
+async function updateLogoUrl(logoUrl) {
+  try {
+    const { data: existing } = await supabase
+      .from('users')
+      .select('id')
+      .limit(1)
+      .single();
+
+    let result;
+    if (existing) {
+      // Update existing
+      result = await supabase
+        .from('users')
+        .update({ logo_url: logoUrl })
+        .eq('id', existing.id)
+        .select();
+    } else {
+      // Create new user record with logo
+      result = await supabase
+        .from('users')
+        .insert([{ logo_url: logoUrl }])
+        .select();
+    }
+
+    if (result.error) {
+      console.error('[v0] Error updating logo:', result.error);
+      return null;
+    }
+
+    return result.data?.[0] || null;
+  } catch (err) {
+    console.error('[v0] Exception updating logo:', err);
     return null;
   }
 }
@@ -506,3 +551,28 @@ async function updateBookingStatus(id, status) {
     return null;
   }
 }
+
+/* ══════════════════════════════════════════
+   MAKE FUNCTIONS GLOBALLY ACCESSIBLE
+══════════════════════════════════════════ */
+window.supabaseClient = supabase;
+window.fetchPhotographerProfile = fetchPhotographerProfile;
+window.updateLogoUrl = updateLogoUrl;
+window.savePhotographerProfile = savePhotographerProfile;
+window.fetchServices = fetchServices;
+window.createService = createService;
+window.updateService = updateService;
+window.deleteService = deleteService;
+window.fetchAllMedia = fetchAllMedia;
+window.createMediaItem = createMediaItem;
+window.deleteMediaItem = deleteMediaItem;
+window.submitMessage = submitMessage;
+window.fetchMessages = fetchMessages;
+window.markMessageAsRead = markMessageAsRead;
+window.deleteMessage = deleteMessage;
+window.fetchTestimonials = fetchTestimonials;
+window.createTestimonial = createTestimonial;
+window.updateTestimonial = updateTestimonial;
+window.createBooking = createBooking;
+window.fetchBookings = fetchBookings;
+window.updateBookingStatus = updateBookingStatus;
