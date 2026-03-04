@@ -42,7 +42,6 @@ async function loadLogo() {
     const profile = await window.fetchPhotographerProfile();
 
     if (profile?.logo_url) {
-      // Set as favicon (app icon) instead of navbar
       let favicon = document.querySelector("link[rel='icon']");
       if (!favicon) {
         favicon = document.createElement('link');
@@ -55,6 +54,7 @@ async function loadLogo() {
     console.error('[v0] Error loading logo:', err);
   }
 }
+
 /**
  * Load photographer profile from Supabase
  */
@@ -63,53 +63,35 @@ async function loadPhotographerProfile() {
     const profile = await window.fetchPhotographerProfile();
     
     if (profile) {
-      // Update hero profile card
-      const profileName = document.getElementById('profileName');
-      const profileBio = document.getElementById('profileBio');
-      const profileSocials = document.getElementById('profileSocials');
+      const profileName     = document.getElementById('profileName');
+      const profileBio      = document.getElementById('profileBio');
+      const profileSocials  = document.getElementById('profileSocials');
       const profileLocation = document.getElementById('profileLocation');
       
-      if (profileName) profileName.textContent = profile.name || 'Photographer';
-      if (profileBio) profileBio.textContent = profile.bio || 'Editorial photographer & videographer';
+      if (profileName)     profileName.textContent     = profile.name     || 'Photographer';
+      if (profileBio)      profileBio.textContent      = profile.bio      || 'Editorial photographer & videographer';
       if (profileLocation) profileLocation.textContent = profile.location || 'Location';
       
-      // Update social media handles
       if (profileSocials) {
-        let socialsHTML = '';
-        
         const socials = [
           { handle: profile.instagram_handle, platform: 'Instagram', icon: '📷' },
-          { handle: profile.twitter_handle, platform: 'Twitter', icon: '𝕏' },
-          { handle: profile.linkedin_handle, platform: 'LinkedIn', icon: '💼' },
-          { handle: profile.portfolio_url, platform: 'Portfolio', icon: '🌐' }
+          { handle: profile.twitter_handle,   platform: 'Twitter',   icon: '𝕏'  },
+          { handle: profile.linkedin_handle,  platform: 'LinkedIn',  icon: '💼' },
+          { handle: profile.portfolio_url,    platform: 'Portfolio', icon: '🌐' }
         ];
         
-        socials.forEach(social => {
-          if (social.handle) {
-            let url = social.handle;
-            
-            // Format URLs properly
-            if (social.platform === 'Instagram') {
-              url = `https://instagram.com/${social.handle}`;
-            } else if (social.platform === 'Twitter') {
-              url = `https://twitter.com/${social.handle}`;
-            } else if (social.platform === 'LinkedIn') {
-              url = `https://linkedin.com/in/${social.handle}`;
-            }
-            
-            socialsHTML += `
-              <a href="${url}" target="_blank" rel="noopener noreferrer" 
-                 class="social-link" title="${social.platform}">
-                ${social.icon}
-              </a>
-            `;
-          }
-        });
-        
-        profileSocials.innerHTML = socialsHTML;
+        profileSocials.innerHTML = socials
+          .filter(s => s.handle)
+          .map(s => {
+            let url = s.handle;
+            if (s.platform === 'Instagram') url = `https://instagram.com/${s.handle}`;
+            if (s.platform === 'Twitter')   url = `https://twitter.com/${s.handle}`;
+            if (s.platform === 'LinkedIn')  url = `https://linkedin.com/in/${s.handle}`;
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="social-link" title="${s.platform}">${s.icon}</a>`;
+          })
+          .join('');
       }
       
-      // Update hero image if available
       const heroBadge = document.getElementById('heroBadge');
       if (heroBadge && profile.services_offered && profile.services_offered.length > 0) {
         heroBadge.textContent = `Available for: ${profile.services_offered.join(' • ')}`;
@@ -124,6 +106,53 @@ async function loadPhotographerProfile() {
   }
 }
 
+/* ─────────────────────────────────────────────
+   HERO IMAGE SLIDESHOW
+   Picks the first image per category and cycles
+   every 5 seconds with a crossfade transition.
+───────────────────────────────────────────── */
+let _heroSlideTimer = null;
+
+function startHeroSlideshow(items) {
+  const heroImage = document.getElementById('heroImage');
+  if (!heroImage || !items || items.length === 0) return;
+
+  // Collect the first image URL for each unique category
+  const seen   = new Set();
+  const slides = [];
+  items.forEach(item => {
+    if (!seen.has(item.category) && item.url) {
+      seen.add(item.category);
+      slides.push(item.url);
+    }
+  });
+
+  if (slides.length === 0) return;
+
+  // Display first slide immediately
+  heroImage.src = slides[0];
+  heroImage.style.opacity = '1';
+
+  let index = 0;
+
+  // Clear any previously running timer
+  if (_heroSlideTimer) clearInterval(_heroSlideTimer);
+
+  _heroSlideTimer = setInterval(() => {
+    index = (index + 1) % slides.length;
+
+    // Fade out
+    heroImage.style.transition = 'opacity 0.7s ease';
+    heroImage.style.opacity    = '0';
+
+    setTimeout(() => {
+      heroImage.src = slides[index];
+      // Fade in after src swap
+      heroImage.style.opacity = '1';
+    }, 700);
+  }, 5000);
+}
+
 /**
  * Load gallery images from Supabase
  */
@@ -134,7 +163,6 @@ async function loadGallery() {
     
     console.log('[v0] Loaded', mediaItems.length, 'media items from Supabase');
     
-    // If no data from Supabase, show a message
     if (mediaItems.length === 0) {
       const galleryGrid = document.getElementById('galleryGrid');
       if (galleryGrid) {
@@ -148,7 +176,10 @@ async function loadGallery() {
       return;
     }
     
-    // Render gallery
+    // Start hero slideshow with loaded data
+    startHeroSlideshow(mediaItems);
+
+    // Render gallery grid
     renderGallery(mediaItems);
   } catch (err) {
     console.error('[v0] Error loading gallery:', err);
@@ -185,7 +216,6 @@ function renderGallery(items) {
     `;
   }).join('');
   
-  // Re-observe new elements for scroll animations
   if (window.observer) {
     document.querySelectorAll('.gallery__item').forEach(el => {
       window.observer.observe(el);
@@ -201,11 +231,8 @@ function setupGalleryFilters() {
   
   filterButtons.forEach(button => {
     button.addEventListener('click', (e) => {
-      // Update active button
       filterButtons.forEach(btn => btn.classList.remove('active'));
       e.target.classList.add('active');
-      
-      // Filter gallery
       currentFilter = e.target.dataset.filter;
       applyFilter();
     });
@@ -219,9 +246,8 @@ function applyFilter() {
   const galleryItems = document.querySelectorAll('.gallery__item');
   
   galleryItems.forEach(item => {
-    const category = item.dataset.category;
+    const category   = item.dataset.category;
     const shouldShow = currentFilter === 'all' || category === currentFilter;
-    
     item.style.display = shouldShow ? '' : 'none';
   });
 }
@@ -230,26 +256,17 @@ function applyFilter() {
  * Format Cloudinary URL with transformations
  */
 function getOptimizedCloudinaryUrl(url, options = {}) {
-  const {
-    width = 600,
-    height = 600,
-    quality = 'auto',
-    format = 'auto'
-  } = options;
-  
-  // If it's already a Cloudinary URL, it's ready to use
-  if (url && url.includes('cloudinary.com')) {
-    return url;
-  }
-  
+  const { width = 600, height = 600, quality = 'auto', format = 'auto' } = options;
+  if (url && url.includes('cloudinary.com')) return url;
   return url;
 }
 
-// Make functions available globally
-window.loadLogo = loadLogo;
-window.loadPhotographerProfile = loadPhotographerProfile;
-window.loadGallery = loadGallery;
-window.renderGallery = renderGallery;
-window.setupGalleryFilters = setupGalleryFilters;
-window.applyFilter = applyFilter;
-window.allGalleryData = allGalleryData;
+// Expose globals
+window.loadLogo                  = loadLogo;
+window.loadPhotographerProfile   = loadPhotographerProfile;
+window.loadGallery               = loadGallery;
+window.renderGallery             = renderGallery;
+window.setupGalleryFilters       = setupGalleryFilters;
+window.applyFilter               = applyFilter;
+window.startHeroSlideshow        = startHeroSlideshow;
+window.allGalleryData            = allGalleryData;
