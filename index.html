@@ -150,40 +150,8 @@
       <span class="section-label">Featured Series</span>
       <h2 class="section-title">Curated Collections</h2>
 
-      <!-- Series 1 -->
-      <div class="featured__block reveal" style="margin-top: var(--sp-8);">
-        <div class="featured__img">
-          <img src="img/beach3.jpg" alt="Coastal Solitude series" />
-        </div>
-        <div class="featured__text">
-          <span class="section-label">Series 01</span>
-          <h3 class="section-title">Coastal Solitude</h3>
-          <p>
-            A meditative journey along Kenya's coastline, exploring the intimate relationship between solitude and the sea. Shot across three tides in Kilifi County, this series captures the in-between moments that most eyes miss.
-          </p>
-          <p>
-            Natural light only. No retouching. Pure presence.
-          </p>
-          <a href="#contact" class="link-ember">See full series</a>
-        </div>
-      </div>
-
-      <!-- Series 2 — reversed layout -->
-      <div class="featured__block featured__block--reverse reveal" style="margin-top: var(--sp-10);">
-        <div class="featured__img">
-          <img src="img/nature1.jpg" alt="Urban Fragments series" />
-        </div>
-        <div class="featured__text">
-          <span class="section-label">Series 02</span>
-          <h3 class="section-title">Urban Fragments</h3>
-          <p>
-            Architecture speaks when people are absent. This editorial series documents forgotten geometry—fractured walls, angular shadows, the language written in concrete and rust.
-          </p>
-          <p>
-            Shot along the Kilifi coast over 18 months. 60 frames. 12 selected.
-          </p>
-          <a href="#contact" class="link-ember">See full series</a>
-        </div>
+      <div id="collectionsContainer">
+        <!-- Collections loaded dynamically from Supabase -->
       </div>
 
     </div>
@@ -221,7 +189,7 @@
             My approach is unhurried and observational. I don't direct so much as I witness—creating space for genuine moments to emerge, then catching them before they disappear. The name Inferno isn't about spectacle. It's about intensity of attention.
           </p>
 
-          <p>
+          <p id="aboutPhilosophy">
             <strong>Artistic philosophy:</strong> Every image should feel like something someone lived, not something someone posed for.
           </p>
 
@@ -236,7 +204,7 @@
             <span class="skill-tag">Post-Production</span>
           </div>
 
-          <p style="margin-bottom: var(--sp-3);">
+          <p id="aboutClientsNote" style="margin-bottom: var(--sp-3);">
             <strong>Clients include:</strong> Independent brands, NGOs, hospitality groups, private families, editorial publications across the Kenyan coast and beyond.
           </p>
 
@@ -260,64 +228,8 @@
         <p class="section-sub">Transparent pricing. No hidden fees. Every session includes a dedicated creative consultation.</p>
       </div>
 
-      <div class="services__grid">
-
-        <!-- Portrait -->
-        <div class="service-card reveal">
-          <p class="service-card__type">Individual</p>
-          <h3>Portrait Session</h3>
-          <p style="font-size: 0.9rem; color: var(--grey-400);">For individuals, families, and personal brands.</p>
-          <div class="service-card__price">KES 15,000 <span>starting</span></div>
-          <hr />
-          <ul>
-            <li>2-hour on-location session</li>
-            <li>30+ edited digital images</li>
-            <li>Online gallery delivery</li>
-            <li>1 round of revision</li>
-            <li>Commercial use license</li>
-          </ul>
-          <p class="service-card__turnaround">⏱ Delivery in 5–7 business days</p>
-          <a href="#contact" class="link-ember">Book this session</a>
-        </div>
-
-        <!-- Brand Editorial — Featured -->
-        <div class="service-card service-card--featured reveal">
-          <p class="service-card__type">Brand</p>
-          <h3>Brand Editorial</h3>
-          <p style="font-size: 0.9rem; color: var(--grey-400);">For businesses, startups, and creative studios.</p>
-          <div class="service-card__price">KES 45,000 <span>starting</span></div>
-          <hr />
-          <ul>
-            <li>Full-day shoot (up to 8 hrs)</li>
-            <li>100+ edited digital images</li>
-            <li>Art direction + mood boarding</li>
-            <li>Social media crop exports</li>
-            <li>2 rounds of revisions</li>
-            <li>Extended commercial license</li>
-          </ul>
-          <p class="service-card__turnaround">⏱ Delivery in 7–10 business days</p>
-          <a href="#contact" class="link-ember">Book this session</a>
-        </div>
-
-        <!-- Event Coverage -->
-        <div class="service-card reveal">
-          <p class="service-card__type">Events</p>
-          <h3>Event Coverage</h3>
-          <p style="font-size: 0.9rem; color: var(--grey-400);">Weddings, launches, galas, and experiences.</p>
-          <div class="service-card__price">KES 60,000 <span>starting</span></div>
-          <hr />
-          <ul>
-            <li>Full event coverage</li>
-            <li>200+ edited digital images</li>
-            <li>Candid + styled documentary</li>
-            <li>Private online gallery</li>
-            <li>Print-ready files included</li>
-            <li>Optional same-day previews</li>
-          </ul>
-          <p class="service-card__turnaround">⏱ Delivery in 10–14 business days</p>
-          <a href="#contact" class="link-ember">Book this session</a>
-        </div>
-
+      <div class="services__grid" id="servicesGrid">
+        <!-- Services loaded dynamically from Supabase -->
       </div>
     </div>
   </section>
@@ -428,27 +340,15 @@
         <div class="contact__info reveal">
           <h3>Get in Touch</h3>
 
-          <div class="contact__detail">
-            <div class="contact__detail-icon">✉</div>
-            <div class="contact__detail-text">
-              <p>Email</p>
-              <strong>ipcreativehouse36@gmail.com</strong>
+          <div class="contact__detail contact__detail--email">
             </div>
           </div>
 
-          <div class="contact__detail">
-            <div class="contact__detail-icon">☏</div>
-            <div class="contact__detail-text">
-              <p>Phone</p>
-              <strong>+254 700 000 000</strong>
+          <div class="contact__detail contact__detail--phone">
             </div>
           </div>
 
-          <div class="contact__detail">
-            <div class="contact__detail-icon">◎</div>
-            <div class="contact__detail-text">
-              <p>Location</p>
-              <strong>Kilifi, Kenya</strong>
+          <div class="contact__detail contact__detail--location">
             </div>
           </div>
 

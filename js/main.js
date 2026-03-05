@@ -17,18 +17,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('[v0] Initializing Inferno Pictures...');
   
   try {
-    // Load logo
     await loadLogo();
-    
-    // Fetch and display photographer profile
+    const profile = await window.fetchPhotographerProfile();
     await loadPhotographerProfile();
-    
-    // Fetch and display gallery
+    await loadAboutSection(profile);
     await loadGallery();
-    
-    // Setup gallery filters
+    await loadServices();
+    await loadCollections();
     setupGalleryFilters();
-    
   } catch (err) {
     console.error('[v0] Error initializing app:', err);
   }
@@ -270,3 +266,185 @@ window.setupGalleryFilters       = setupGalleryFilters;
 window.applyFilter               = applyFilter;
 window.startHeroSlideshow        = startHeroSlideshow;
 window.allGalleryData            = allGalleryData;
+/* ══════════════════════════════════════════
+   SERVICES — render from Supabase
+══════════════════════════════════════════ */
+async function loadServices() {
+  try {
+    const services = await window.fetchServices();
+    if (!services || services.length === 0) return;
+
+    const grid = document.getElementById('servicesGrid');
+    if (!grid) return;
+
+    grid.innerHTML = services.map((s, idx) => {
+      const isFeatured = s.is_featured;
+      const items = Array.isArray(s.items_offered) ? s.items_offered : [];
+      const price = s.base_price ? `KES ${Number(s.base_price).toLocaleString()}` : '';
+      return `
+        <div class="service-card ${isFeatured ? 'service-card--featured' : ''} reveal">
+          <p class="service-card__type">${escFront(s.category || '')}</p>
+          <h3>${escFront(s.name)}</h3>
+          <p style="font-size:0.9rem;color:var(--grey-400);">${escFront(s.description || '')}</p>
+          <div class="service-card__price">${price} <span>starting</span></div>
+          <hr />
+          <ul>${items.map(it => `<li>${escFront(it)}</li>`).join('')}</ul>
+          ${s.turnaround ? `<p class="service-card__turnaround">⏱ ${escFront(s.turnaround)}</p>` : ''}
+          <a href="#contact" class="link-ember">Book this session</a>
+        </div>
+      `;
+    }).join('');
+
+    document.querySelectorAll('.service-card.reveal').forEach(el => {
+      if (window.observer) window.observer.observe(el);
+    });
+  } catch (err) {
+    console.error('[v0] loadServices:', err);
+  }
+}
+
+/* ══════════════════════════════════════════
+   COLLECTIONS — render from Supabase
+══════════════════════════════════════════ */
+async function loadCollections() {
+  try {
+    const cols = await window.fetchCollections();
+    if (!cols || cols.length === 0) return;
+
+    const container = document.getElementById('collectionsContainer');
+    if (!container) return;
+
+    container.innerHTML = cols.map((c, idx) => {
+      const reversed = idx % 2 !== 0 ? 'featured__block--reverse' : '';
+      return `
+        <div class="featured__block ${reversed} reveal" style="margin-top: var(--sp-8);">
+          <div class="featured__img">
+            ${c.image_url
+              ? `<img src="${escFront(c.image_url)}" alt="${escFront(c.title)}" />`
+              : `<div style="width:100%;height:100%;background:var(--grey-100);display:flex;align-items:center;justify-content:center;color:var(--grey-400);">No image</div>`}
+          </div>
+          <div class="featured__text">
+            <span class="section-label">${escFront(c.series_label || 'Series')}</span>
+            <h3 class="section-title">${escFront(c.title)}</h3>
+            ${c.description ? `<p>${escFront(c.description)}</p>` : ''}
+            ${c.tagline ? `<p>${escFront(c.tagline)}</p>` : ''}
+            <a href="${escFront(c.link_url || '#contact')}" class="link-ember">${escFront(c.link_label || 'See full series')}</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    document.querySelectorAll('.featured__block.reveal').forEach(el => {
+      if (window.observer) window.observer.observe(el);
+    });
+  } catch (err) {
+    console.error('[v0] loadCollections:', err);
+  }
+}
+
+/* ══════════════════════════════════════════
+   ABOUT — render from Supabase profile
+══════════════════════════════════════════ */
+async function loadAboutSection(profile) {
+  if (!profile) return;
+
+  // Avatar in hero profile card
+  const avatarEl = document.getElementById('profileAvatar');
+  if (avatarEl) {
+    if (profile.avatar_url) {
+      avatarEl.style.backgroundImage = `url('${profile.avatar_url}')`;
+      avatarEl.style.backgroundSize = 'cover';
+      avatarEl.style.backgroundPosition = 'center';
+    } else if (profile.name) {
+      avatarEl.textContent = profile.name.charAt(0).toUpperCase();
+    }
+  }
+
+  // About portrait in about section
+  const aboutPortraitImg = document.querySelector('.about__portrait-img img');
+  if (aboutPortraitImg && profile.avatar_url) {
+    aboutPortraitImg.src = profile.avatar_url;
+    aboutPortraitImg.alt = profile.name || 'Photographer';
+  }
+
+  const aboutSigName = document.querySelector('.about__portrait-sig strong');
+  if (aboutSigName && profile.name) aboutSigName.textContent = profile.name;
+
+  const aboutTitle = document.querySelector('.about__content .section-title');
+  if (aboutTitle && profile.about_title) aboutTitle.innerHTML = profile.about_title.replace(/\n/g, '<br>');
+
+  const aboutBodies = document.querySelectorAll('.about__content .about-body-p');
+  if (profile.about_body) {
+    const paragraphs = profile.about_body.split('\n\n').filter(Boolean);
+    // Inject dynamically
+    const contentDiv = document.querySelector('.about__content');
+    if (contentDiv) {
+      const existingBodies = contentDiv.querySelectorAll('.about-body-p');
+      existingBodies.forEach(el => el.remove());
+      const skillsDiv = contentDiv.querySelector('.about__skills');
+      paragraphs.forEach(para => {
+        const p = document.createElement('p');
+        p.className = 'about-body-p';
+        p.textContent = para;
+        if (skillsDiv) contentDiv.insertBefore(p, skillsDiv);
+        else contentDiv.appendChild(p);
+      });
+    }
+  }
+
+  if (profile.philosophy) {
+    const philoEl = document.getElementById('aboutPhilosophy');
+    if (philoEl) philoEl.innerHTML = `<strong>Artistic philosophy:</strong> ${escFront(profile.philosophy)}`;
+  }
+
+  if (profile.skills && profile.skills.length > 0) {
+    const skillsEl = document.querySelector('.about__skills');
+    if (skillsEl) {
+      skillsEl.innerHTML = profile.skills.map(sk => `<span class="skill-tag">${escFront(sk)}</span>`).join('');
+    }
+  }
+
+  if (profile.clients_note) {
+    const clientsEl = document.getElementById('aboutClientsNote');
+    if (clientsEl) clientsEl.innerHTML = `<strong>Clients include:</strong> ${escFront(profile.clients_note)}`;
+  }
+
+  // Contact info from profile
+  if (profile.email) {
+    const emailEl = document.querySelector('.contact__detail--email strong');
+    if (emailEl) emailEl.textContent = profile.email;
+  }
+  if (profile.phone) {
+    const phoneEl = document.querySelector('.contact__detail--phone strong');
+    if (phoneEl) phoneEl.textContent = profile.phone;
+  }
+  if (profile.location) {
+    const locEl = document.querySelector('.contact__detail--location strong');
+    if (locEl) locEl.textContent = profile.location;
+  }
+
+  // Social links with Font Awesome icons
+  if (profile.instagram_handle || profile.twitter_handle || profile.linkedin_handle || profile.facebook_handle) {
+    const socialLinksEl = document.querySelector('.contact__socials .social-links');
+    if (socialLinksEl) {
+      const links = [];
+      if (profile.instagram_handle) links.push(`<a href="https://instagram.com/${profile.instagram_handle.replace('@','')}" target="_blank" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`);
+      if (profile.linkedin_handle)  links.push(`<a href="https://linkedin.com/in/${profile.linkedin_handle}" target="_blank" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>`);
+      if (profile.twitter_handle)   links.push(`<a href="https://twitter.com/${profile.twitter_handle.replace('@','')}" target="_blank" class="social-link" aria-label="Twitter/X"><i class="fab fa-x-twitter"></i></a>`);
+      if (profile.facebook_handle)  links.push(`<a href="https://facebook.com/${profile.facebook_handle}" target="_blank" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`);
+      socialLinksEl.innerHTML = links.join('');
+    }
+  }
+}
+
+function escFront(str = '') {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+window.loadServices    = loadServices;
+window.loadCollections = loadCollections;
+window.loadAboutSection = loadAboutSection;

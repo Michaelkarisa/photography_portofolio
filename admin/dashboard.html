@@ -51,6 +51,11 @@
           Services
         </a>
 
+        <a class="sidebar__link" data-panel="collections" onclick="switchPanel('collections')">
+          <span class="sidebar__link-icon">🎞</span>
+          Collections
+        </a>
+
         <p class="sidebar__nav-label" style="margin-top: 8px;">Inbox</p>
 
         <a class="sidebar__link" data-panel="messages" onclick="switchPanel('messages')">
@@ -166,6 +171,7 @@
               <button class="btn btn--outline" onclick="switchPanel('media')">+ Upload Media</button>
               <button class="btn btn--outline" onclick="switchPanel('testimonials')">+ Add Testimonial</button>
               <button class="btn btn--outline" onclick="switchPanel('services')">+ Edit Services</button>
+              <button class="btn btn--outline" onclick="switchPanel('collections')">+ Edit Collections</button>
               <button class="btn btn--outline" onclick="switchPanel('messages')">✉ View Messages</button>
               <a href="../index.html" target="_blank" class="btn btn--outline">↗ View Public Site</a>
             </div>
@@ -179,6 +185,29 @@
         ══════════════════ -->
         <div class="panel" id="panel-profile">
 
+          <!-- Avatar Upload Card -->
+          <div class="card">
+            <div class="card__header">
+              <h3>Profile Avatar</h3>
+            </div>
+            <div class="card__body">
+              <div style="margin-bottom:16px;text-align:center;">
+                <p style="color:var(--grey-500);margin-bottom:8px;">Current Avatar</p>
+                <div id="avatarPreviewWrap" style="width:80px;height:80px;border-radius:50%;overflow:hidden;margin:0 auto 8px;background:var(--grey-100);display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--grey-400);">
+                  <img id="avatarPreview" src="" alt="Avatar" style="width:100%;height:100%;object-fit:cover;display:none;" />
+                  <span id="avatarInitial">?</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Avatar Image File</label>
+                <input type="file" id="avatarFile" accept="image/*" class="form-control" />
+                <small style="color:var(--grey-500);">Square format recommended. JPEG, PNG, WebP (Max 10MB).</small>
+              </div>
+              <button class="btn btn--primary" id="uploadAvatarButton" onclick="handleAvatarUpload()">Upload Avatar</button>
+              <div id="avatarUploadStatus" style="margin-top:12px;font-size:0.875rem;"></div>
+            </div>
+          </div>
+
           <!-- Logo Upload Card -->
           <div class="card">
             <div class="card__header">
@@ -190,13 +219,11 @@
                 <img id="logoPreview" src="" alt="Logo preview" style="max-width:150px; max-height:150px; border-radius:8px; display:none;" />
                 <p id="noLogo" style="color:var(--grey-400);">No logo uploaded yet</p>
               </div>
-
               <div class="form-group">
                 <label>Logo File</label>
                 <input type="file" id="logoFile" accept="image/*" class="form-control" />
                 <small style="color:var(--grey-500);">Accepts: JPEG, PNG, WebP, GIF (Max 10MB). Recommended: square format.</small>
               </div>
-
               <button class="btn btn--primary" id="uploadLogoButton" onclick="handleLogoUpload()">Upload Logo</button>
               <div id="logoUploadStatus" style="margin-top:12px; font-size:0.875rem;"></div>
             </div>
@@ -213,16 +240,61 @@
                 <input type="text" id="profileName" placeholder="Your name" class="form-control" />
               </div>
               <div class="form-group">
-                <label>Bio</label>
-                <textarea id="profileBio" placeholder="Write your bio..." class="form-control" rows="4"></textarea>
+                <label>Short Bio (Hero card)</label>
+                <textarea id="profileBio" placeholder="e.g. Editorial photographer & videographer" class="form-control" rows="2"></textarea>
               </div>
               <div class="form-group">
                 <label>Location</label>
                 <input type="text" id="profileLocation" placeholder="City, Country" class="form-control" />
               </div>
               <div class="form-group">
-                <label>Services Offered (comma-separated)</label>
+                <label>Services Offered (comma-separated, for hero badge)</label>
                 <input type="text" id="profileServices" placeholder="Portrait, Editorial, Events, Videography" class="form-control" />
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__header">
+              <h3>About Section</h3>
+            </div>
+            <div class="card__body">
+              <div class="form-group">
+                <label>About Headline</label>
+                <input type="text" id="profileAboutTitle" placeholder="e.g. Light is the medium.\nTruth is the subject." class="form-control" />
+                <small style="color:var(--grey-500);">Use \n for line breaks.</small>
+              </div>
+              <div class="form-group">
+                <label>About Body Paragraphs</label>
+                <textarea id="profileAboutBody" placeholder="Write your about section here. Separate paragraphs with a blank line." class="form-control" rows="6"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Artistic Philosophy</label>
+                <input type="text" id="profilePhilosophy" placeholder="e.g. Every image should feel like something someone lived..." class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Skills (comma-separated)</label>
+                <input type="text" id="profileSkills" placeholder="Sony Alpha, Lightroom, Capture One, Film Photography" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Clients Note</label>
+                <input type="text" id="profileClientsNote" placeholder="Independent brands, NGOs, hospitality groups..." class="form-control" />
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__header">
+              <h3>Contact Info</h3>
+            </div>
+            <div class="card__body">
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="profileEmail" placeholder="your@email.com" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" id="profilePhone" placeholder="+254 700 000 000" class="form-control" />
               </div>
               <div class="form-group">
                 <label>Instagram Handle</label>
@@ -237,10 +309,14 @@
                 <input type="text" id="profileLinkedin" placeholder="your-profile" class="form-control" />
               </div>
               <div class="form-group">
+                <label>Facebook Handle</label>
+                <input type="text" id="profileFacebook" placeholder="your-page" class="form-control" />
+              </div>
+              <div class="form-group">
                 <label>Portfolio URL</label>
                 <input type="url" id="profilePortfolio" placeholder="https://yourportfolio.com" class="form-control" />
               </div>
-              <button class="btn btn--primary" onclick="handleSaveProfile()">Save Profile</button>
+              <button class="btn btn--primary" onclick="handleSaveProfile()">Save All Profile Changes</button>
             </div>
           </div>
 
@@ -344,14 +420,12 @@
         </div><!-- /panel-testimonials -->
 
 
-        <!-- ══════════════════
-             SERVICES PANEL
-        ══════════════════ -->
         <div class="panel" id="panel-services">
 
           <div class="card">
             <div class="card__header">
               <h3>All Services</h3>
+              <button class="btn btn--outline btn--sm" onclick="switchPanel('services')">↻ Refresh</button>
             </div>
             <div class="card__body">
               <div class="item-list" id="servicesList">Loading...</div>
@@ -371,21 +445,34 @@
                   <input type="text" id="svc-name" placeholder="e.g. Portrait Session" />
                 </div>
                 <div class="form-group">
-                  <label for="svc-price">Starting Price</label>
+                  <label for="svc-category">Category</label>
+                  <input type="text" id="svc-category" placeholder="e.g. Individual, Brand, Events" />
+                </div>
+                <div class="form-group">
+                  <label for="svc-price">Starting Price (KES)</label>
                   <input type="text" id="svc-price" placeholder="e.g. 15000" />
                 </div>
                 <div class="form-group">
-                  <label for="svc-turn">Duration (hours)</label>
-                  <input type="number" id="svc-turn" placeholder="e.g. 3" />
+                  <label for="svc-turn">Turnaround</label>
+                  <input type="text" id="svc-turn" placeholder="e.g. Delivery in 5–7 business days" />
                 </div>
-                <div class="form-group">
+                <div class="form-group form-grid--full">
                   <label for="svc-desc">Description</label>
-                  <input type="text" id="svc-desc" placeholder="Short description" />
+                  <input type="text" id="svc-desc" placeholder="e.g. For individuals, families, and personal brands." />
+                </div>
+                <div class="form-group form-grid--full">
+                  <label for="svc-items">Items Offered (one per line)</label>
+                  <textarea id="svc-items" placeholder="2-hour on-location session&#10;30+ edited digital images&#10;Online gallery delivery&#10;1 round of revision&#10;Commercial use license" rows="6"></textarea>
+                  <small style="color:var(--grey-500);">Each line becomes a bullet point on the service card.</small>
                 </div>
               </div>
-              <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
-                <input type="checkbox" id="svc-featured" checked />
-                <label for="svc-featured" style="font-size:0.875rem; cursor:pointer;">Active (visible on site)</label>
+              <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
+                <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;cursor:pointer;">
+                  <input type="checkbox" id="svc-is-featured" /> Mark as Featured (highlighted card)
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:0.875rem;cursor:pointer;">
+                  <input type="checkbox" id="svc-featured" checked /> Active (visible on site)
+                </label>
               </div>
               <div class="form-actions">
                 <button class="btn btn--primary" onclick="saveService()">Save Service</button>
@@ -395,6 +482,82 @@
           </div>
 
         </div><!-- /panel-services -->
+
+
+        <!-- ══════════════════
+             COLLECTIONS PANEL
+        ══════════════════ -->
+        <div class="panel" id="panel-collections">
+
+          <div class="card">
+            <div class="card__header">
+              <h3>All Collections</h3>
+              <button class="btn btn--outline btn--sm" onclick="window.loadCollectionsAdmin()">↻ Refresh</button>
+            </div>
+            <div class="card__body">
+              <div class="item-list" id="collectionsList">Loading...</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__header">
+              <h3>Add / Edit Collection</h3>
+            </div>
+            <div class="card__body">
+              <div id="colAlert" class="alert" style="display:none;"></div>
+              <input type="hidden" id="col-id" />
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="col-title">Title *</label>
+                  <input type="text" id="col-title" placeholder="e.g. Coastal Solitude" />
+                </div>
+                <div class="form-group">
+                  <label for="col-series-label">Series Label</label>
+                  <input type="text" id="col-series-label" placeholder="e.g. Series 01" />
+                </div>
+                <div class="form-group form-grid--full">
+                  <label for="col-description">Description</label>
+                  <textarea id="col-description" placeholder="Main paragraph describing the collection..." rows="4"></textarea>
+                </div>
+                <div class="form-group form-grid--full">
+                  <label for="col-tagline">Tagline (second paragraph)</label>
+                  <input type="text" id="col-tagline" placeholder="e.g. Natural light only. No retouching. Pure presence." />
+                </div>
+                <div class="form-group">
+                  <label for="col-link-label">Link Label</label>
+                  <input type="text" id="col-link-label" placeholder="See full series" />
+                </div>
+                <div class="form-group">
+                  <label for="col-link-url">Link URL</label>
+                  <input type="text" id="col-link-url" placeholder="#contact" />
+                </div>
+                <div class="form-group">
+                  <label for="col-sort-order">Sort Order</label>
+                  <input type="number" id="col-sort-order" placeholder="0" />
+                </div>
+              </div>
+
+              <!-- Collection Image Upload -->
+              <div class="form-group" style="margin-top:8px;">
+                <label>Collection Image</label>
+                <div id="colImagePreview" style="margin-bottom:10px;"></div>
+                <input type="file" id="col-image-file" accept="image/*" class="form-control" />
+                <small style="color:var(--grey-500);">Upload a new image for this collection (replaces existing).</small>
+                <div id="colImageStatus" style="margin-top:8px;font-size:0.875rem;"></div>
+              </div>
+
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+                <input type="checkbox" id="col-active" checked />
+                <label for="col-active" style="font-size:0.875rem;cursor:pointer;">Active (visible on site)</label>
+              </div>
+              <div class="form-actions">
+                <button class="btn btn--primary" onclick="saveCollection()">Save Collection</button>
+                <button class="btn btn--outline" onclick="clearCollectionForm()">Clear</button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /panel-collections -->
 
 
         <!-- ══════════════════
@@ -571,7 +734,8 @@
       if (panelName === 'media')        window.loadMediaGallery();
       if (panelName === 'services')     window.loadServices();
       if (panelName === 'testimonials') window.loadTestimonials();
-      if (panelName === 'profile')      loadProfilePanel();
+      if (panelName === 'collections')  window.loadCollectionsAdmin();
+      if (panelName === 'profile')      window.loadProfilePanelFull();
     };
 
     /* ══════════════════════════════════════════

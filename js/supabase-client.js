@@ -555,7 +555,7 @@ async function updateBookingStatus(id, status) {
 /* ══════════════════════════════════════════
    MAKE FUNCTIONS GLOBALLY ACCESSIBLE
 ══════════════════════════════════════════ */
-window.supabaseClient = supabase;
+// window.supabaseClient is already set above via createClient
 window.fetchPhotographerProfile = fetchPhotographerProfile;
 window.updateLogoUrl = updateLogoUrl;
 window.savePhotographerProfile = savePhotographerProfile;
@@ -576,3 +576,104 @@ window.updateTestimonial = updateTestimonial;
 window.createBooking = createBooking;
 window.fetchBookings = fetchBookings;
 window.updateBookingStatus = updateBookingStatus;
+
+/* ══════════════════════════════════════════
+   COLLECTIONS — Curated Series
+══════════════════════════════════════════ */
+async function fetchCollections() {
+  try {
+    const { data, error } = await _db
+      .from('collections')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
+    if (error) { console.error('[v0] fetchCollections:', error); return []; }
+    return data || [];
+  } catch (err) { console.error('[v0] fetchCollections exception:', err); return []; }
+}
+
+async function fetchAllCollections() {
+  try {
+    const { data, error } = await _db
+      .from('collections')
+      .select('*')
+      .order('sort_order', { ascending: true });
+    if (error) { console.error('[v0] fetchAllCollections:', error); return []; }
+    return data || [];
+  } catch (err) { console.error('[v0] fetchAllCollections exception:', err); return []; }
+}
+
+async function createCollection(payload) {
+  try {
+    const { data, error } = await _db.from('collections').insert([payload]).select();
+    if (error) { console.error('[v0] createCollection:', error); return null; }
+    return data?.[0] || null;
+  } catch (err) { console.error('[v0] createCollection exception:', err); return null; }
+}
+
+async function updateCollection(id, updates) {
+  try {
+    const { data, error } = await _db.from('collections').update(updates).eq('id', id).select();
+    if (error) { console.error('[v0] updateCollection:', error); return null; }
+    return data?.[0] || null;
+  } catch (err) { console.error('[v0] updateCollection exception:', err); return null; }
+}
+
+async function deleteCollection(id) {
+  try {
+    const { error } = await _db.from('collections').delete().eq('id', id);
+    if (error) { console.error('[v0] deleteCollection:', error); return false; }
+    return true;
+  } catch (err) { console.error('[v0] deleteCollection exception:', err); return false; }
+}
+
+/* ══════════════════════════════════════════
+   AVATAR — Profile avatar upload
+══════════════════════════════════════════ */
+async function updateAvatarUrl(avatarUrl) {
+  try {
+    const { data: existing } = await _db.from('users').select('id').limit(1).single();
+    let result;
+    if (existing) {
+      result = await _db.from('users').update({ avatar_url: avatarUrl }).eq('id', existing.id).select();
+    } else {
+      result = await _db.from('users').insert([{ avatar_url: avatarUrl }]).select();
+    }
+    if (result.error) { console.error('[v0] updateAvatarUrl:', result.error); return null; }
+    return result.data?.[0] || null;
+  } catch (err) { console.error('[v0] updateAvatarUrl exception:', err); return null; }
+}
+
+/* ══════════════════════════════════════════
+   SERVICES — fetch all (including inactive for admin)
+══════════════════════════════════════════ */
+async function fetchAllServices() {
+  try {
+    const { data, error } = await _db
+      .from('services')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('name', { ascending: true });
+    if (error) { console.error('[v0] fetchAllServices:', error); return []; }
+    return data || [];
+  } catch (err) { console.error('[v0] fetchAllServices exception:', err); return []; }
+}
+
+/* Re-export deletions for testimonials */
+async function deleteTestimonial(id) {
+  try {
+    const { error } = await _db.from('testimonials').delete().eq('id', id);
+    if (error) { console.error('[v0] deleteTestimonial:', error); return false; }
+    return true;
+  } catch (err) { console.error('[v0] deleteTestimonial exception:', err); return false; }
+}
+
+window.fetchCollections      = fetchCollections;
+window.fetchAllCollections   = fetchAllCollections;
+window.createCollection      = createCollection;
+window.updateCollection      = updateCollection;
+window.deleteCollection      = deleteCollection;
+window.updateAvatarUrl       = updateAvatarUrl;
+window.fetchAllServices      = fetchAllServices;
+window.deleteTestimonial     = deleteTestimonial;

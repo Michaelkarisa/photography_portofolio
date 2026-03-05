@@ -67,7 +67,8 @@ function switchPanel(panelId) {
 
   const titles = {
     dashboard: 'Dashboard', gallery: 'Gallery', testimonials: 'Testimonials',
-    services: 'Services', messages: 'Messages', bookings: 'Bookings', settings: 'Settings'
+    services: 'Services', collections: 'Collections', messages: 'Messages',
+    bookings: 'Bookings', settings: 'Settings', profile: 'Photographer Profile', media: 'Media'
   };
   const titleEl = document.getElementById('topbarTitle');
   if (titleEl) titleEl.textContent = titles[panelId] || 'Dashboard';
@@ -166,7 +167,8 @@ async function loadServices() {
   list.innerHTML = '<p style="color:var(--grey-400);">Loading...</p>';
 
   try {
-    const items = await window.fetchServices();
+    const fetchFn = window.fetchAllServices || window.fetchServices;
+    const items = await fetchFn();
 
     if (!items || items.length === 0) {
       list.innerHTML = '<p style="color:var(--grey-400);">No services yet.</p>';
@@ -176,12 +178,14 @@ async function loadServices() {
     list.innerHTML = items.map(s => `
       <div class="item-row">
         <div class="item-row__info">
-          <div class="item-row__title">${escHtml(s.name)}</div>
+          <div class="item-row__title">${escHtml(s.name)} ${s.is_featured ? '<span style="color:var(--ember);font-size:0.75rem;">★ Featured</span>' : ''}</div>
           <div class="item-row__meta">
+            ${s.category ? `<span style="background:var(--grey-100);padding:2px 6px;border-radius:4px;font-size:0.75rem;">${escHtml(s.category)}</span> ` : ''}
             ${s.base_price ? 'KES ' + Number(s.base_price).toLocaleString() : ''}
-            ${s.duration_hours ? ' · ' + s.duration_hours + 'hrs' : ''}
-            ${s.is_active ? '' : ' · <span style="color:var(--grey-400)">Inactive</span>'}
+            ${s.items_offered?.length ? ` · ${s.items_offered.length} items` : ''}
+            ${s.is_active ? '' : ' · <span style="color:var(--grey-400);">Inactive</span>'}
           </div>
+          ${s.description ? `<div style="font-size:0.8rem;color:var(--grey-500);margin-top:4px;">${escHtml(s.description)}</div>` : ''}
         </div>
         <div class="item-row__actions">
           <button class="btn btn--outline btn--sm" onclick="editService('${s.id}')">Edit</button>
@@ -195,21 +199,29 @@ async function loadServices() {
 }
 
 async function saveService() {
-  const id    = document.getElementById('svc-id')?.value;
-  const name  = document.getElementById('svc-name')?.value.trim();
-  const price = document.getElementById('svc-price')?.value.trim();
-  const hours = document.getElementById('svc-turn')?.value.trim();
-  const desc  = document.getElementById('svc-desc')?.value.trim();
-  const active = document.getElementById('svc-featured')?.checked ?? true;
+  const id       = document.getElementById('svc-id')?.value;
+  const name     = document.getElementById('svc-name')?.value.trim();
+  const category = document.getElementById('svc-category')?.value.trim();
+  const price    = document.getElementById('svc-price')?.value.trim();
+  const turnaround = document.getElementById('svc-turn')?.value.trim();
+  const desc     = document.getElementById('svc-desc')?.value.trim();
+  const itemsRaw = document.getElementById('svc-items')?.value || '';
+  const active   = document.getElementById('svc-featured')?.checked ?? true;
+  const featured = document.getElementById('svc-is-featured')?.checked ?? false;
 
   if (!name) { alert('Service name is required.'); return; }
 
+  const items_offered = itemsRaw.split('\n').map(s => s.trim()).filter(Boolean);
+
   const payload = {
     name,
+    category: category || null,
     base_price: price ? parseFloat(price.replace(/[^0-9.]/g, '')) : null,
-    duration_hours: hours ? parseInt(hours) : null,
-    description: desc,
+    turnaround: turnaround || null,
+    description: desc || null,
+    items_offered,
     is_active: active,
+    is_featured: featured,
   };
 
   try {
@@ -229,16 +241,20 @@ async function saveService() {
 }
 
 function editService(id) {
-  window.fetchServices().then(items => {
+  (window.fetchAllServices || window.fetchServices)().then(items => {
     const s = items.find(x => x.id === id);
     if (!s) return;
-    document.getElementById('svc-id').value   = s.id;
-    document.getElementById('svc-name').value = s.name;
-    document.getElementById('svc-price').value = s.base_price || '';
-    document.getElementById('svc-turn').value  = s.duration_hours || '';
-    document.getElementById('svc-desc').value  = s.description || '';
-    if (document.getElementById('svc-featured'))
-      document.getElementById('svc-featured').checked = s.is_active;
+    const set = (elId, val) => { const el = document.getElementById(elId); if (el) el.value = val || ''; };
+    set('svc-id',       s.id);
+    set('svc-name',     s.name);
+    set('svc-category', s.category);
+    set('svc-price',    s.base_price || '');
+    set('svc-turn',     s.turnaround || '');
+    set('svc-desc',     s.description || '');
+    set('svc-items',    Array.isArray(s.items_offered) ? s.items_offered.join('\n') : '');
+    if (document.getElementById('svc-featured'))    document.getElementById('svc-featured').checked    = s.is_active;
+    if (document.getElementById('svc-is-featured')) document.getElementById('svc-is-featured').checked = s.is_featured;
+    document.getElementById('svc-name')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 }
 
@@ -249,12 +265,14 @@ async function removeService(id) {
 }
 
 function clearServiceForm() {
-  ['svc-id','svc-name','svc-price','svc-turn','svc-desc'].forEach(id => {
+  ['svc-id','svc-name','svc-category','svc-price','svc-turn','svc-desc','svc-items'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
   const feat = document.getElementById('svc-featured');
   if (feat) feat.checked = true;
+  const isFeat = document.getElementById('svc-is-featured');
+  if (isFeat) isFeat.checked = false;
 }
 
 /* ══════════════════════════════════════════
@@ -544,16 +562,25 @@ async function loadProfileForm() {
 }
 
 async function handleSaveProfile() {
+  const g = id => (document.getElementById(id)?.value || '').trim();
+
   const profileData = {
-    name:              (document.getElementById('profileName')?.value      || '').trim(),
-    bio:               (document.getElementById('profileBio')?.value       || '').trim(),
-    location:          (document.getElementById('profileLocation')?.value  || '').trim(),
-    instagram_handle:  (document.getElementById('profileInstagram')?.value || '').trim(),
-    twitter_handle:    (document.getElementById('profileTwitter')?.value   || '').trim(),
-    linkedin_handle:   (document.getElementById('profileLinkedin')?.value  || '').trim(),
-    portfolio_url:     (document.getElementById('profilePortfolio')?.value || '').trim(),
-    services_offered:  (document.getElementById('profileServices')?.value  || '')
-                         .split(',').map(s => s.trim()).filter(Boolean),
+    name:              g('profileName'),
+    bio:               g('profileBio'),
+    location:          g('profileLocation'),
+    about_title:       g('profileAboutTitle').replace(/\\n/g, '\n'),
+    about_body:        g('profileAboutBody'),
+    philosophy:        g('profilePhilosophy'),
+    clients_note:      g('profileClientsNote'),
+    email:             g('profileEmail'),
+    phone:             g('profilePhone'),
+    instagram_handle:  g('profileInstagram'),
+    twitter_handle:    g('profileTwitter'),
+    linkedin_handle:   g('profileLinkedin'),
+    facebook_handle:   g('profileFacebook'),
+    portfolio_url:     g('profilePortfolio'),
+    services_offered:  g('profileServices').split(',').map(s => s.trim()).filter(Boolean),
+    skills:            g('profileSkills').split(',').map(s => s.trim()).filter(Boolean),
   };
 
   if (!profileData.name) { alert('Name is required.'); return; }
@@ -561,13 +588,13 @@ async function handleSaveProfile() {
   try {
     const result = await window.savePhotographerProfile(profileData);
     if (result) {
-      showAlert('settingsAlert', 'Profile saved successfully!', 'success');
+      showAlert('profileAlert', 'Profile saved successfully!', 'success');
     } else {
-      showAlert('settingsAlert', 'Failed to save profile.', 'error');
+      showAlert('profileAlert', 'Failed to save profile.', 'error');
     }
   } catch (err) {
     console.error('[v0] Error saving profile:', err);
-    showAlert('settingsAlert', 'Error: ' + err.message, 'error');
+    showAlert('profileAlert', 'Error: ' + err.message, 'error');
   }
 }
 
@@ -690,3 +717,244 @@ window.markRead            = markRead;
 window.deleteMessage       = deleteMessage;
 window.loadMessages        = loadMessages;
 window.renderStats         = renderStats;
+/* ══════════════════════════════════════════
+   AVATAR UPLOAD
+══════════════════════════════════════════ */
+async function handleAvatarUpload() {
+  const fileInput = document.getElementById('avatarFile');
+  const statusEl  = document.getElementById('avatarUploadStatus');
+  const uploadBtn = document.getElementById('uploadAvatarButton');
+
+  if (!fileInput?.files.length) { alert('Please select an avatar file.'); return; }
+
+  const file = fileInput.files[0];
+  if (!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) {
+    alert('Please upload a JPEG, PNG, WebP, or GIF.'); return;
+  }
+  if (file.size > 10 * 1024 * 1024) { alert('File size exceeds 10MB.'); return; }
+
+  uploadBtn.disabled = true;
+  statusEl.textContent = 'Uploading...';
+  statusEl.style.color = 'var(--grey-500)';
+
+  try {
+    const cloudinaryResult = await uploadToCloudinary(file, 'inferno_avatars');
+    const result = await window.updateAvatarUrl(cloudinaryResult.url);
+    if (result) {
+      statusEl.textContent = '✓ Avatar uploaded!';
+      statusEl.style.color = 'var(--ember)';
+      fileInput.value = '';
+      loadAvatarPreview();
+      setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    } else {
+      throw new Error('Failed to save avatar URL');
+    }
+  } catch (err) {
+    console.error('[v0] Avatar upload error:', err);
+    statusEl.textContent = '✗ Upload failed: ' + err.message;
+    statusEl.style.color = 'red';
+  } finally {
+    uploadBtn.disabled = false;
+  }
+}
+
+async function loadAvatarPreview() {
+  try {
+    const profile = await window.fetchPhotographerProfile();
+    const preview  = document.getElementById('avatarPreview');
+    const initial  = document.getElementById('avatarInitial');
+    if (!preview) return;
+    if (profile?.avatar_url) {
+      preview.src = profile.avatar_url;
+      preview.style.display = 'block';
+      if (initial) initial.style.display = 'none';
+    } else {
+      preview.style.display = 'none';
+      if (initial) {
+        initial.style.display = '';
+        initial.textContent = profile?.name ? profile.name.charAt(0).toUpperCase() : '?';
+      }
+    }
+  } catch (err) {
+    console.error('[v0] loadAvatarPreview:', err);
+  }
+}
+
+/* ══════════════════════════════════════════
+   COLLECTIONS CRUD
+══════════════════════════════════════════ */
+async function loadCollectionsAdmin() {
+  const list = document.getElementById('collectionsList');
+  if (!list) return;
+  list.innerHTML = '<p style="color:var(--grey-400);">Loading...</p>';
+  try {
+    const items = await window.fetchAllCollections();
+    if (!items || items.length === 0) {
+      list.innerHTML = '<p style="color:var(--grey-400);">No collections yet. Add one below.</p>';
+      return;
+    }
+    list.innerHTML = items.map(c => `
+      <div class="item-row">
+        <div class="item-row__info" style="display:flex;align-items:center;gap:12px;">
+          ${c.image_url ? `<img src="${escHtml(c.image_url)}" style="width:56px;height:40px;object-fit:cover;border-radius:4px;flex-shrink:0;" />` : `<div style="width:56px;height:40px;background:var(--grey-100);border-radius:4px;flex-shrink:0;"></div>`}
+          <div>
+            <div class="item-row__title">${escHtml(c.title)} ${c.is_active ? '' : '<span style="color:var(--grey-400);font-size:0.75rem;">Inactive</span>'}</div>
+            <div class="item-row__meta">${escHtml(c.series_label || '')} ${c.description ? '· ' + escHtml(c.description.substring(0,60)) + '...' : ''}</div>
+          </div>
+        </div>
+        <div class="item-row__actions">
+          <button class="btn btn--outline btn--sm" onclick="editCollection('${c.id}')">Edit</button>
+          <button class="btn btn--danger btn--sm" onclick="removeCollection('${c.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error('[v0] loadCollectionsAdmin:', err);
+    list.innerHTML = '<p style="color:red;">Failed to load collections.</p>';
+  }
+}
+
+async function saveCollection() {
+  const id    = document.getElementById('col-id')?.value;
+  const title = document.getElementById('col-title')?.value.trim();
+  const g = elId => (document.getElementById(elId)?.value || '').trim();
+
+  if (!title) { alert('Title is required.'); return; }
+
+  // Handle optional image upload first
+  const imageFile = document.getElementById('col-image-file')?.files[0];
+  let imageUrl = null;
+  let imagePubId = null;
+
+  if (imageFile) {
+    const statusEl = document.getElementById('colImageStatus');
+    if (statusEl) { statusEl.textContent = 'Uploading image...'; statusEl.style.color = 'var(--grey-500)'; }
+    try {
+      const res = await uploadToCloudinary(imageFile, 'inferno_collections');
+      imageUrl  = res.url;
+      imagePubId = res.public_id;
+      if (statusEl) { statusEl.textContent = '✓ Image uploaded'; statusEl.style.color = 'var(--ember)'; }
+    } catch (err) {
+      alert('Image upload failed: ' + err.message); return;
+    }
+  }
+
+  // If editing, fetch existing image url to keep it if no new image
+  let existingImageUrl = null;
+  if (id && !imageUrl) {
+    const all = await window.fetchAllCollections();
+    const existing = all.find(c => c.id === id);
+    existingImageUrl = existing?.image_url || null;
+  }
+
+  const payload = {
+    title,
+    series_label: g('col-series-label') || null,
+    description:  g('col-description') || null,
+    tagline:      g('col-tagline') || null,
+    link_label:   g('col-link-label') || 'See full series',
+    link_url:     g('col-link-url') || '#contact',
+    sort_order:   parseInt(g('col-sort-order')) || 0,
+    is_active:    document.getElementById('col-active')?.checked ?? true,
+    image_url:    imageUrl || existingImageUrl,
+    cloudinary_public_id: imagePubId || null,
+  };
+
+  try {
+    if (id) {
+      await window.updateCollection(id, payload);
+      showAlert('colAlert', 'Collection updated.', 'success');
+    } else {
+      await window.createCollection(payload);
+      showAlert('colAlert', 'Collection added.', 'success');
+    }
+    clearCollectionForm();
+    loadCollectionsAdmin();
+  } catch (err) {
+    console.error('[v0] saveCollection:', err);
+    showAlert('colAlert', 'Error saving collection.', 'error');
+  }
+}
+
+function editCollection(id) {
+  window.fetchAllCollections().then(items => {
+    const c = items.find(x => x.id === id);
+    if (!c) return;
+    const set = (elId, val) => { const el = document.getElementById(elId); if (el) el.value = val || ''; };
+    set('col-id',           c.id);
+    set('col-title',        c.title);
+    set('col-series-label', c.series_label);
+    set('col-description',  c.description);
+    set('col-tagline',      c.tagline);
+    set('col-link-label',   c.link_label);
+    set('col-link-url',     c.link_url);
+    set('col-sort-order',   c.sort_order);
+    if (document.getElementById('col-active')) document.getElementById('col-active').checked = c.is_active;
+    const prev = document.getElementById('colImagePreview');
+    if (prev && c.image_url) {
+      prev.innerHTML = `<img src="${escHtml(c.image_url)}" style="max-width:200px;max-height:120px;border-radius:6px;object-fit:cover;" />`;
+    }
+    document.getElementById('col-title')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+}
+
+async function removeCollection(id) {
+  if (!confirm('Delete this collection?')) return;
+  await window.deleteCollection(id);
+  loadCollectionsAdmin();
+}
+
+function clearCollectionForm() {
+  ['col-id','col-title','col-series-label','col-description','col-tagline','col-link-label','col-link-url','col-sort-order'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = id === 'col-link-label' ? 'See full series' : id === 'col-link-url' ? '#contact' : '';
+  });
+  if (document.getElementById('col-active')) document.getElementById('col-active').checked = true;
+  if (document.getElementById('col-image-file')) document.getElementById('col-image-file').value = '';
+  const prev = document.getElementById('colImagePreview');
+  if (prev) prev.innerHTML = '';
+  const status = document.getElementById('colImageStatus');
+  if (status) status.textContent = '';
+}
+
+/* ══════════════════════════════════════════
+   PROFILE PANEL — load all new fields
+══════════════════════════════════════════ */
+async function loadProfilePanelFull() {
+  try {
+    const profile = await window.fetchPhotographerProfile();
+    if (!profile) return;
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('profileName',       profile.name);
+    set('profileBio',        profile.bio);
+    set('profileLocation',   profile.location);
+    set('profileAboutTitle', profile.about_title);
+    set('profileAboutBody',  profile.about_body);
+    set('profilePhilosophy', profile.philosophy);
+    set('profileClientsNote',profile.clients_note);
+    set('profileEmail',      profile.email);
+    set('profilePhone',      profile.phone);
+    set('profileInstagram',  profile.instagram_handle);
+    set('profileTwitter',    profile.twitter_handle);
+    set('profileLinkedin',   profile.linkedin_handle);
+    set('profileFacebook',   profile.facebook_handle);
+    set('profilePortfolio',  profile.portfolio_url);
+    if (document.getElementById('profileServices'))
+      document.getElementById('profileServices').value = (profile.services_offered || []).join(', ');
+    if (document.getElementById('profileSkills'))
+      document.getElementById('profileSkills').value = (profile.skills || []).join(', ');
+    await window.loadLogoPreview();
+    await loadAvatarPreview();
+  } catch (err) {
+    console.error('[v0] loadProfilePanelFull:', err);
+  }
+}
+
+window.handleAvatarUpload   = handleAvatarUpload;
+window.loadAvatarPreview    = loadAvatarPreview;
+window.loadCollectionsAdmin = loadCollectionsAdmin;
+window.saveCollection       = saveCollection;
+window.editCollection       = editCollection;
+window.removeCollection     = removeCollection;
+window.clearCollectionForm  = clearCollectionForm;
+window.loadProfilePanelFull = loadProfilePanelFull;
