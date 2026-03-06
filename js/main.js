@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadAboutSection(profile);
     await loadGallery();
     await loadServices();
+    await loadServiceSelect();
     await loadCollections();
     setupGalleryFilters();
   } catch (err) {
@@ -64,36 +65,74 @@ async function loadPhotographerProfile() {
       const profileSocials  = document.getElementById('profileSocials');
       const profileLocation = document.getElementById('profileLocation');
 
-      if (profileName)     profileName.textContent     = profile.name || 'Photographer';
-      if (profileBio)      profileBio.textContent      = profile.bio || 'Editorial photographer & videographer';
+      if (profileName)     profileName.textContent     = profile.name     || 'Photographer';
+      if (profileBio)      profileBio.textContent      = profile.bio      || 'Editorial photographer & videographer';
       if (profileLocation) profileLocation.textContent = profile.location || 'Location';
 
       if (profileSocials) {
 
         const socials = [
-          { url: profile.instagram_handle, icon: 'fab fa-instagram', label: 'Instagram' },
-          { url: profile.linkedin_handle,  icon: 'fab fa-linkedin-in', label: 'LinkedIn' },
-          { url: profile.twitter_handle,   icon: 'fab fa-x-twitter', label: 'Twitter/X' },
-          { url: profile.facebook_handle,  icon: 'fab fa-facebook-f', label: 'Facebook' },
-          { url: profile.portfolio_url,    icon: 'fas fa-globe', label: 'Portfolio' }
+          {
+            handle: profile.instagram_handle,
+            platform: 'Instagram',
+            icon: 'fab fa-instagram'
+          },
+          {
+            handle: profile.linkedin_handle,
+            platform: 'LinkedIn',
+            icon: 'fab fa-linkedin-in'
+          },
+          {
+            handle: profile.twitter_handle,
+            platform: 'Twitter/X',
+            icon: 'fab fa-x-twitter'
+          },
+          {
+            handle: profile.facebook_handle,
+            platform: 'Facebook',
+            icon: 'fab fa-facebook-f'
+          },
+          {
+            handle: profile.portfolio_url,
+            platform: 'Portfolio',
+            icon: 'fas fa-globe'
+          }
         ];
 
         profileSocials.innerHTML = socials
-          .filter(s => s.url)
-          .map(s => `
-            <a href="${s.url}" 
-               class="social-link"
-               target="_blank"
-               rel="noopener noreferrer"
-               aria-label="${s.label}">
-              <i class="${s.icon}"></i>
-            </a>
-          `)
+          .filter(s => s.handle)
+          .map(s => {
+            let url = s.handle;
+
+            // optional: auto-build URLs if only username stored
+            if (s.platform === 'Instagram' && !url.startsWith('http'))
+              url = `https://instagram.com/${s.handle}`;
+
+            if (s.platform === 'Twitter/X' && !url.startsWith('http'))
+              url = `https://x.com/${s.handle}`;
+
+            if (s.platform === 'LinkedIn' && !url.startsWith('http'))
+              url = `https://linkedin.com/in/${s.handle}`;
+
+            if (s.platform === 'Facebook' && !url.startsWith('http'))
+              url = `https://facebook.com/${s.handle}`;
+
+            return `
+              <a href="${url}" 
+                 class="social-link" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 aria-label="${s.platform}">
+                <i class="${s.icon}"></i>
+              </a>
+            `;
+          })
           .join('');
       }
 
       const heroBadge = document.getElementById('heroBadge');
-      if (heroBadge && profile.services_offered?.length) {
+
+      if (heroBadge && profile.services_offered && profile.services_offered.length > 0) {
         heroBadge.textContent = `Available for: ${profile.services_offered.join(' • ')}`;
       }
 
@@ -101,7 +140,6 @@ async function loadPhotographerProfile() {
     } else {
       console.log('[v0] No photographer profile found - using defaults');
     }
-
   } catch (err) {
     console.error('[v0] Error loading photographer profile:', err);
   }
@@ -353,39 +391,42 @@ async function loadCollections() {
 async function loadAboutSection(profile) {
   if (!profile) return;
 
-  // Avatar in hero profile card
+  // ── Hero profile card avatar ──
   const avatarEl = document.getElementById('profileAvatar');
   if (avatarEl) {
     if (profile.avatar_url) {
       avatarEl.style.backgroundImage = `url('${profile.avatar_url}')`;
       avatarEl.style.backgroundSize = 'cover';
       avatarEl.style.backgroundPosition = 'center';
+      avatarEl.textContent = '';
     } else if (profile.name) {
       avatarEl.textContent = profile.name.charAt(0).toUpperCase();
     }
   }
 
-  // About portrait in about section
+  // ── About section portrait image ──
   const aboutPortraitImg = document.querySelector('.about__portrait-img img');
   if (aboutPortraitImg && profile.avatar_url) {
     aboutPortraitImg.src = profile.avatar_url;
     aboutPortraitImg.alt = profile.name || 'Photographer';
   }
 
+  // ── About portrait signature ──
   const aboutSigName = document.querySelector('.about__portrait-sig strong');
   if (aboutSigName && profile.name) aboutSigName.textContent = profile.name;
 
+  // ── About headline ──
   const aboutTitle = document.querySelector('.about__content .section-title');
-  if (aboutTitle && profile.about_title) aboutTitle.innerHTML = profile.about_title.replace(/\n/g, '<br>');
+  if (aboutTitle && profile.about_title) {
+    aboutTitle.innerHTML = profile.about_title.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+  }
 
-  const aboutBodies = document.querySelectorAll('.about__content .about-body-p');
+  // ── About body paragraphs ──
   if (profile.about_body) {
     const paragraphs = profile.about_body.split('\n\n').filter(Boolean);
-    // Inject dynamically
     const contentDiv = document.querySelector('.about__content');
     if (contentDiv) {
-      const existingBodies = contentDiv.querySelectorAll('.about-body-p');
-      existingBodies.forEach(el => el.remove());
+      contentDiv.querySelectorAll('.about-body-p').forEach(el => el.remove());
       const skillsDiv = contentDiv.querySelector('.about__skills');
       paragraphs.forEach(para => {
         const p = document.createElement('p');
@@ -397,11 +438,13 @@ async function loadAboutSection(profile) {
     }
   }
 
+  // ── Artistic philosophy ──
   if (profile.philosophy) {
     const philoEl = document.getElementById('aboutPhilosophy');
     if (philoEl) philoEl.innerHTML = `<strong>Artistic philosophy:</strong> ${escFront(profile.philosophy)}`;
   }
 
+  // ── Skills tags ──
   if (profile.skills && profile.skills.length > 0) {
     const skillsEl = document.querySelector('.about__skills');
     if (skillsEl) {
@@ -409,36 +452,102 @@ async function loadAboutSection(profile) {
     }
   }
 
+  // ── Clients note ──
   if (profile.clients_note) {
     const clientsEl = document.getElementById('aboutClientsNote');
     if (clientsEl) clientsEl.innerHTML = `<strong>Clients include:</strong> ${escFront(profile.clients_note)}`;
   }
 
-  // Contact info from profile
-  if (profile.email) {
-    const emailEl = document.querySelector('.contact__detail--email strong');
-    if (emailEl) emailEl.textContent = profile.email;
-  }
-  if (profile.phone) {
-    const phoneEl = document.querySelector('.contact__detail--phone strong');
-    if (phoneEl) phoneEl.textContent = profile.phone;
-  }
-  if (profile.location) {
-    const locEl = document.querySelector('.contact__detail--location strong');
-    if (locEl) locEl.textContent = profile.location;
+  // ── Contact section ──
+  loadContactDetails(profile);
+}
+
+/* ══════════════════════════════════════════
+   CONTACT — populate "Get in Touch" from DB
+══════════════════════════════════════════ */
+function loadContactDetails(profile) {
+  // Email
+  const emailWrap = document.getElementById('contactDetailEmail');
+  const emailVal  = document.getElementById('contactEmail');
+  if (emailWrap && emailVal) {
+    if (profile.email) {
+      emailVal.textContent    = profile.email;
+      emailWrap.style.display = '';
+    } else {
+      emailWrap.style.display = 'none';
+    }
   }
 
-  // Social links with Font Awesome icons
-  if (profile.instagram_handle || profile.twitter_handle || profile.linkedin_handle || profile.facebook_handle) {
-    const socialLinksEl = document.querySelector('.contact__socials .social-links');
-    if (socialLinksEl) {
-      const links = [];
-      if (profile.instagram_handle) links.push(`<a href="${profile.instagram_handle.replace('@','')}" target="_blank" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`);
-      if (profile.linkedin_handle)  links.push(`<a href="${profile.linkedin_handle}" target="_blank" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>`);
-      if (profile.twitter_handle)   links.push(`<a href="${profile.twitter_handle.replace('@','')}" target="_blank" class="social-link" aria-label="Twitter/X"><i class="fab fa-x-twitter"></i></a>`);
-      if (profile.facebook_handle)  links.push(`<a href="${profile.facebook_handle}" target="_blank" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`);
-      socialLinksEl.innerHTML = links.join('');
+  // Phone
+  const phoneWrap = document.getElementById('contactDetailPhone');
+  const phoneVal  = document.getElementById('contactPhone');
+  if (phoneWrap && phoneVal) {
+    if (profile.phone) {
+      phoneVal.textContent    = profile.phone;
+      phoneWrap.style.display = '';
+    } else {
+      phoneWrap.style.display = 'none';
     }
+  }
+
+  // Location
+  const locWrap = document.getElementById('contactDetailLocation');
+  const locVal  = document.getElementById('contactLocation');
+  if (locWrap && locVal) {
+    if (profile.location) {
+      locVal.textContent    = profile.location;
+      locWrap.style.display = '';
+    } else {
+      locWrap.style.display = 'none';
+    }
+  }
+
+  // Social links
+  const socialLinksEl = document.getElementById('contactSocialLinks');
+  if (socialLinksEl) {
+    const links = [];
+    const mkLink = (handle, baseUrl, icon, label) => {
+      if (!handle) return;
+      const href = handle.startsWith('http') ? handle : `${baseUrl}${handle.replace('@', '')}`;
+      links.push(`<a href="${href}" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="${label}"><i class="${icon}"></i></a>`);
+    };
+    mkLink(profile.instagram_handle, '',  'fab fa-instagram',  'Instagram');
+    mkLink(profile.linkedin_handle,  '','fab fa-linkedin-in', 'LinkedIn');
+    mkLink(profile.twitter_handle,   '',    'fab fa-x-twitter',  'Twitter/X');
+    mkLink(profile.facebook_handle,  '',   'fab fa-facebook-f', 'Facebook');
+    socialLinksEl.innerHTML = links.length
+      ? links.join('')
+      : '<span style="color:var(--grey-400);font-size:0.85rem;">No social links added yet.</span>';
+  }
+}
+
+/* ══════════════════════════════════════════
+   SERVICE SELECT — populate options from DB
+══════════════════════════════════════════ */
+async function loadServiceSelect() {
+  try {
+    const services = await window.fetchServices();
+    const select = document.getElementById('service');
+    if (!select) return;
+
+    select.innerHTML = '<option value="">Select a service...</option>';
+
+    if (services && services.length > 0) {
+      services.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.name;
+        opt.textContent = s.name + (s.base_price ? ` — KES ${Number(s.base_price).toLocaleString()}` : '');
+        select.appendChild(opt);
+      });
+    }
+
+    // Always keep a catch-all option
+    const other = document.createElement('option');
+    other.value = 'other';
+    other.textContent = 'Other / Custom';
+    select.appendChild(other);
+  } catch (err) {
+    console.error('[v0] loadServiceSelect:', err);
   }
 }
 
@@ -450,6 +559,8 @@ function escFront(str = '') {
     .replace(/"/g, '&quot;');
 }
 
-window.loadServices    = loadServices;
-window.loadCollections = loadCollections;
-window.loadAboutSection = loadAboutSection;
+window.loadServices      = loadServices;
+window.loadCollections   = loadCollections;
+window.loadAboutSection  = loadAboutSection;
+window.loadContactDetails = loadContactDetails;
+window.loadServiceSelect  = loadServiceSelect;

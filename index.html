@@ -300,7 +300,7 @@
 
       <div class="contact__inner" style="margin-top: var(--sp-8);">
 
-        <!-- Form -->
+        <!-- Form — full width on top -->
         <div class="contact-form reveal">
           <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: normal; margin-bottom: var(--sp-4);">Send a Message</h3>
 
@@ -318,10 +318,7 @@
             <label for="service">Project Type</label>
             <select id="service" name="service">
               <option value="">Select a service...</option>
-              <option value="portrait">Portrait Session</option>
-              <option value="brand">Brand Editorial</option>
-              <option value="event">Event Coverage</option>
-              <option value="other">Other / Custom</option>
+              <!-- Options populated from Supabase services table -->
             </select>
           </div>
 
@@ -336,40 +333,47 @@
           </button>
         </div>
 
-        <!-- Contact Info -->
-        <div class="contact__info reveal">
-          <h3>Get in Touch</h3>
+        <!-- Right column: Get in Touch + Follow the Work stacked -->
+        <div class="contact__bottom reveal">
 
-          <div class="contact__detail contact__detail--email">
+          <!-- Get in Touch -->
+          <div class="contact__info">
+            <h3>Get in Touch</h3>
+
+            <div class="contact__detail contact__detail--email" id="contactDetailEmail" style="display:none;">
+              <div class="contact__detail-icon">✉</div>
+              <div class="contact__detail-text">
+                <p>Email</p>
+                <strong id="contactEmail">—</strong>
+              </div>
+            </div>
+
+            <div class="contact__detail contact__detail--phone" id="contactDetailPhone" style="display:none;">
+              <div class="contact__detail-icon">☏</div>
+              <div class="contact__detail-text">
+                <p>Phone</p>
+                <strong id="contactPhone">—</strong>
+              </div>
+            </div>
+
+            <div class="contact__detail contact__detail--location" id="contactDetailLocation" style="display:none;">
+              <div class="contact__detail-icon">◎</div>
+              <div class="contact__detail-text">
+                <p>Location</p>
+                <strong id="contactLocation">—</strong>
+              </div>
             </div>
           </div>
 
-          <div class="contact__detail contact__detail--phone">
+          <!-- Follow the Work -->
+          <div class="contact__socials">
+            <p>Follow the Work</p>
+            <div class="social-links" id="contactSocialLinks">
+              <!-- Populated from DB -->
             </div>
           </div>
 
-          <div class="contact__detail contact__detail--location">
-            </div>
-          </div>
-
-     <div class="contact__socials">
-  <p>Follow the Work</p>
-  <div class="social-links">
-    <a href="#" class="social-link" aria-label="Instagram">
-      <i class="fab fa-instagram"></i>
-    </a>
-    <a href="#" class="social-link" aria-label="LinkedIn">
-      <i class="fab fa-linkedin-in"></i>
-    </a>
-    <a href="#" class="social-link" aria-label="Twitter/X">
-      <i class="fab fa-x-twitter"></i>
-    </a>
-    <a href="#" class="social-link" aria-label="Facebook">
-      <i class="fab fa-facebook-f"></i>
-    </a>
-  </div>
-</div>
-        </div>
+        </div><!-- /contact__bottom -->
 
       </div>
     </div>
