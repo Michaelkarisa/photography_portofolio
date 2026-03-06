@@ -106,16 +106,16 @@ async function loadPhotographerProfile() {
 
             // optional: auto-build URLs if only username stored
             if (s.platform === 'Instagram' && !url.startsWith('http'))
-              url = `https://instagram.com/${s.handle}`;
+              url = `${s.handle}`;
 
             if (s.platform === 'Twitter/X' && !url.startsWith('http'))
-              url = `https://x.com/${s.handle}`;
+              url = `${s.handle}`;
 
             if (s.platform === 'LinkedIn' && !url.startsWith('http'))
-              url = `https://linkedin.com/in/${s.handle}`;
+              url = `${s.handle}`;
 
             if (s.platform === 'Facebook' && !url.startsWith('http'))
-              url = `https://facebook.com/${s.handle}`;
+              url = `${s.handle}`;
 
             return `
               <a href="${url}" 
@@ -156,11 +156,20 @@ function startHeroSlideshow(items) {
   const heroImage = document.getElementById('heroImage');
   if (!heroImage || !items || items.length === 0) return;
 
-  // Collect the first image URL for each unique category
-  const seen   = new Set();
+  const seen = new Set();
   const slides = [];
+
   items.forEach(item => {
-    if (!seen.has(item.category) && item.url) {
+    if (!item.url) return;
+
+    // Check if media is an image
+    const isImage =
+      item.media_type === 'image' ||
+      /\.(jpg|jpeg|png|webp|gif)$/i.test(item.url);
+
+    if (!isImage) return;
+
+    if (!seen.has(item.category)) {
       seen.add(item.category);
       slides.push(item.url);
     }
@@ -168,27 +177,24 @@ function startHeroSlideshow(items) {
 
   if (slides.length === 0) return;
 
-  // Display first slide immediately
   heroImage.src = slides[0];
   heroImage.style.opacity = '1';
 
   let index = 0;
 
-  // Clear any previously running timer
   if (_heroSlideTimer) clearInterval(_heroSlideTimer);
 
   _heroSlideTimer = setInterval(() => {
     index = (index + 1) % slides.length;
 
-    // Fade out
     heroImage.style.transition = 'opacity 0.7s ease';
-    heroImage.style.opacity    = '0';
+    heroImage.style.opacity = '0';
 
     setTimeout(() => {
       heroImage.src = slides[index];
-      // Fade in after src swap
       heroImage.style.opacity = '1';
     }, 700);
+
   }, 5000);
 }
 
@@ -231,19 +237,40 @@ async function loadGallery() {
 function renderGallery(items) {
   const galleryGrid = document.getElementById('galleryGrid');
   if (!galleryGrid) return;
-  
-  galleryGrid.innerHTML = items.map(item => {
-    const categoryLabel = item.category.charAt(0).toUpperCase() + item.category.slice(1);
-    
+
+  galleryGrid.innerHTML = items.map((item, index) => {
+    const categoryLabel =
+      item.category.charAt(0).toUpperCase() + item.category.slice(1);
+
+    const isVideo =
+      item.media_type === 'video' ||
+      /\.(mp4|webm|ogg)$/i.test(item.url);
+
     return `
       <div class="gallery__item" data-category="${item.category}">
-        <figure>
-          <img 
-            src="${item.url}" 
-            alt="${item.caption || categoryLabel}"
-            loading="lazy"
-            style="width: 100%; height: 100%; object-fit: cover;"
-          />
+        <figure class="gallery__media-wrap" data-index="${index}">
+          ${
+            isVideo
+              ? `
+                <video
+                  class="gallery__media gallery__video"
+                  src="${item.url}"
+                  muted
+                  playsinline
+                  preload="metadata"
+                  style="width: 100%; height: 100%; object-fit: cover;"
+                ></video>
+              `
+              : `
+                <img
+                  class="gallery__media"
+                  src="${item.url}"
+                  alt="${item.caption || categoryLabel}"
+                  loading="lazy"
+                  style="width: 100%; height: 100%; object-fit: cover;"
+                />
+              `
+          }
           <figcaption class="gallery__overlay">
             <div class="gallery__caption">
               <h4>${item.caption || categoryLabel}</h4>
@@ -254,12 +281,100 @@ function renderGallery(items) {
       </div>
     `;
   }).join('');
-  
+
   if (window.observer) {
     document.querySelectorAll('.gallery__item').forEach(el => {
       window.observer.observe(el);
     });
   }
+
+  document.querySelectorAll('.gallery__media-wrap').forEach(wrap => {
+    const video = wrap.querySelector('video');
+    const index = Number(wrap.dataset.index);
+    const item = items[index];
+
+    if (video) {
+      wrap.addEventListener('mouseenter', () => {
+        video.play().catch(() => {});
+      });
+
+      wrap.addEventListener('mouseleave', () => {
+        video.pause();
+        video.currentTime = 0;
+      });
+
+      wrap.addEventListener('focusin', () => {
+        video.play().catch(() => {});
+      });
+
+      wrap.addEventListener('focusout', () => {
+        video.pause();
+        video.currentTime = 0;
+      });
+    }
+
+    wrap.addEventListener('click', () => {
+      openGalleryModal(item);
+    });
+  });
+}
+
+function openGalleryModal(item) {
+  let modal = document.getElementById('galleryModal');
+
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'galleryModal';
+    modal.className = 'gallery-modal';
+    modal.innerHTML = `
+      <div class="gallery-modal__backdrop"></div>
+      <div class="gallery-modal__content">
+        <button class="gallery-modal__close" aria-label="Close modal">&times;</button>
+        <div class="gallery-modal__body"></div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.querySelector('.gallery-modal__close').addEventListener('click', closeGalleryModal);
+    modal.querySelector('.gallery-modal__backdrop').addEventListener('click', closeGalleryModal);
+  }
+
+  const body = modal.querySelector('.gallery-modal__body');
+  const isVideo =
+    item.media_type === 'video' ||
+    /\.(mp4|webm|ogg)$/i.test(item.url);
+
+  body.innerHTML = isVideo
+    ? `
+      <video
+        src="${item.url}"
+        controls
+        autoplay
+        playsinline
+        style="width: 500px; height: 500px; object-fit: cover;"
+      ></video>
+    `
+    : `
+      <img
+        src="${item.url}"
+        alt="${item.caption || 'Gallery media'}"
+        style="width: 500px; height: 500px; object-fit: cover;"
+      />
+    `;
+
+  modal.classList.add('is-open');
+}
+
+function closeGalleryModal() {
+  const modal = document.getElementById('galleryModal');
+  if (!modal) return;
+
+  const video = modal.querySelector('video');
+  if (video) {
+    video.pause();
+  }
+
+  modal.classList.remove('is-open');
 }
 
 /**
