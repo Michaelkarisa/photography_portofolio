@@ -1,55 +1,83 @@
 /**
  * INFERNO PHOTOGRAPHY — ADMIN JAVASCRIPT
  * All data reads/writes go to Supabase.
- * localStorage is no longer used for content.
+ * Auth uses Supabase Auth (email + password).
  */
 
 'use strict';
 
 /* ══════════════════════════════════════════
-   AUTH CONSTANTS
+   AUTH — Login with Supabase Auth
 ══════════════════════════════════════════ */
-const DEMO_USER = 'admin';
-const DEMO_PASS = 'inferno123';
-const AUTH_KEY  = 'inferno_admin_auth';
-
-/* ══════════════════════════════════════════
-   AUTH — Login
-══════════════════════════════════════════ */
-function handleLogin(e) {
+async function handleLogin(e) {
   e.preventDefault();
-  const username = document.getElementById('username').value.trim();
+  const email    = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
   const errorEl  = document.getElementById('loginError');
+  const btn      = document.querySelector('#loginForm button[type="submit"]');
 
-  if (username === DEMO_USER && password === DEMO_PASS) {
-    sessionStorage.setItem(AUTH_KEY, 'true');
-    sessionStorage.setItem('inferno_admin_user', username);
+  if (!email || !password) {
+    showLoginError(errorEl, 'Please enter your email and password.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+
+  try {
+    const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+
+    if (error || !data?.session) {
+      showLoginError(errorEl, error?.message || 'Invalid credentials. Please try again.');
+      document.getElementById('password').value = '';
+      document.getElementById('password').focus();
+      return;
+    }
+
+    // Successful login — Supabase stores the session automatically
     window.location.href = 'dashboard.html';
-  } else {
-    errorEl.classList.add('show');
-    document.getElementById('password').value = '';
-    document.getElementById('password').focus();
+  } catch (err) {
+    console.error('[v0] Login error:', err);
+    showLoginError(errorEl, 'Something went wrong. Please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sign In →';
   }
 }
 
+function showLoginError(el, msg) {
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
 /* ══════════════════════════════════════════
-   AUTH — Guard
+   AUTH — Guard (async, checks live session)
 ══════════════════════════════════════════ */
-function guardAuth() {
-  if (sessionStorage.getItem(AUTH_KEY) !== 'true') {
+async function guardAuth() {
+  try {
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    if (!session) {
+      window.location.href = 'index.html';
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('[v0] guardAuth error:', err);
     window.location.href = 'index.html';
     return false;
   }
-  return true;
 }
 
 /* ══════════════════════════════════════════
    AUTH — Logout
 ══════════════════════════════════════════ */
-function handleLogout() {
-  sessionStorage.removeItem(AUTH_KEY);
-  sessionStorage.removeItem('inferno_admin_user');
+async function handleLogout() {
+  try {
+    await window.supabaseClient.auth.signOut();
+  } catch (err) {
+    console.error('[v0] Logout error:', err);
+  }
   window.location.href = 'index.html';
 }
 
@@ -683,10 +711,17 @@ function showAlert(elId, msg, type = 'success') {
    INIT — Dashboard load
 ══════════════════════════════════════════ */
 async function initDashboard() {
-  if (!guardAuth()) return;
+  const authed = await guardAuth();
+  if (!authed) return;
 
-  const userEl = document.getElementById('adminUser');
-  if (userEl) userEl.textContent = sessionStorage.getItem('inferno_admin_user') || 'admin';
+  // Show the signed-in user's email
+  try {
+    const { data: { user } } = await window.supabaseClient.auth.getUser();
+    const userEl = document.getElementById('adminUser');
+    if (userEl && user?.email) userEl.textContent = user.email;
+  } catch (err) {
+    console.error('[v0] Could not fetch user:', err);
+  }
 
   switchPanel('dashboard');
   await renderStats();
@@ -958,3 +993,40 @@ window.editCollection       = editCollection;
 window.removeCollection     = removeCollection;
 window.clearCollectionForm  = clearCollectionForm;
 window.loadProfilePanelFull = loadProfilePanelFull;
+
+/* ══════════════════════════════════════════
+   SETTINGS — Change Password & Email display
+══════════════════════════════════════════ */
+async function loadSettingsPanel() {
+  try {
+    const { data: { user } } = await window.supabaseClient.auth.getUser();
+    const emailEl = document.getElementById('settingsEmail');
+    if (emailEl && user?.email) emailEl.textContent = user.email;
+  } catch (err) {
+    console.error('[v0] loadSettingsPanel:', err);
+  }
+}
+
+async function handleChangePassword() {
+  const newPwd = (document.getElementById('newPassword')?.value || '').trim();
+  if (!newPwd || newPwd.length < 6) {
+    showAlert('passwordAlert', 'Password must be at least 6 characters.', 'error');
+    return;
+  }
+
+  try {
+    const { error } = await window.supabaseClient.auth.updateUser({ password: newPwd });
+    if (error) {
+      showAlert('passwordAlert', 'Error: ' + error.message, 'error');
+    } else {
+      showAlert('passwordAlert', '✓ Password updated successfully.', 'success');
+      document.getElementById('newPassword').value = '';
+    }
+  } catch (err) {
+    console.error('[v0] handleChangePassword:', err);
+    showAlert('passwordAlert', 'Something went wrong.', 'error');
+  }
+}
+
+window.loadSettingsPanel    = loadSettingsPanel;
+window.handleChangePassword = handleChangePassword;

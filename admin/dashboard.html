@@ -594,9 +594,6 @@
         </div><!-- /panel-messages -->
 
 
-        <!-- ══════════════════
-             SETTINGS PANEL
-        ══════════════════ -->
         <div class="panel" id="panel-settings">
 
           <div class="card">
@@ -607,12 +604,27 @@
 
               <div id="settingsAlert" class="alert" style="display:none;"></div>
 
+              <!-- Signed-in account -->
               <div class="settings-row">
                 <div>
-                  <h4>Admin Credentials</h4>
-                  <p>Demo: <code style="background:var(--grey-100); padding:2px 6px; border-radius:4px; font-family:monospace;">admin / inferno123</code> — Replace with real auth in production.</p>
+                  <h4>Signed-in Account</h4>
+                  <p>Authenticated via Supabase. Logged in as <strong id="settingsEmail">—</strong></p>
                 </div>
-                <span style="font-size:0.75rem; color:var(--ember); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Demo Only</span>
+                <button class="btn btn--outline" onclick="handleLogout()">Sign Out</button>
+              </div>
+
+              <!-- Change password -->
+              <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:12px;">
+                <div>
+                  <h4>Change Password</h4>
+                  <p>Update your admin account password.</p>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;width:100%;">
+                  <input type="password" id="newPassword" placeholder="New password (min 6 chars)"
+                    style="flex:1;min-width:200px;padding:8px 12px;border:1px solid var(--grey-200);border-radius:6px;font-size:0.875rem;" />
+                  <button class="btn btn--primary" onclick="handleChangePassword()">Update Password</button>
+                </div>
+                <div id="passwordAlert" class="alert" style="display:none;"></div>
               </div>
 
               <div class="settings-row">
@@ -736,6 +748,7 @@
       if (panelName === 'testimonials') window.loadTestimonials();
       if (panelName === 'collections')  window.loadCollectionsAdmin();
       if (panelName === 'profile')      window.loadProfilePanelFull();
+      if (panelName === 'settings')     window.loadSettingsPanel();
     };
 
     /* ══════════════════════════════════════════
@@ -776,6 +789,13 @@
        INIT
     ══════════════════════════════════════════ */
     document.addEventListener('DOMContentLoaded', async () => {
+      // Listen for auth state changes — redirect to login on sign-out or token expiry
+      window.supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_OUT' || (!session && event !== 'INITIAL_SESSION')) {
+          window.location.href = 'index.html';
+        }
+      });
+
       await initDashboard();        // auth guard + stats
       await loadDashboardMessages(); // recent messages on dashboard panel
     });

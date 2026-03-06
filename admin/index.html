@@ -3,14 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Login</title>
+  <title>Admin Login — Inferno Pictures</title>
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body class="login-page">
 
-  <!-- ══════════════════════════════
-       LOGIN CARD
-  ══════════════════════════════ -->
   <div class="login-card">
 
     <!-- Brand -->
@@ -21,20 +18,20 @@
 
     <!-- Error message -->
     <div class="login-error" id="loginError">
-      Incorrect username or password. Please try again.
+      Incorrect email or password. Please try again.
     </div>
 
     <!-- Login Form -->
     <form id="loginForm" onsubmit="handleLogin(event)">
 
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="username">Email</label>
         <input
-          type="text"
+          type="email"
           id="username"
-          name="username"
-          placeholder="admin"
-          autocomplete="username"
+          name="email"
+          placeholder="admin@yourdomain.com"
+          autocomplete="email"
           required
         />
       </div>
@@ -55,22 +52,28 @@
 
     </form>
 
-    <!-- Demo Credentials — clearly labelled -->
-    <div class="login-demo">
-      <p>Username: <code>admin</code></p>
-      <p>Password: <code>inferno123</code></p>
-      <span class="demo-warning">⚠ Demo only — not secure</span>
-    </div>
+    <p style="margin-top:20px; font-size:0.8rem; color:var(--grey-400); text-align:center;">
+      Secure login powered by Supabase Auth.<br>
+      Contact your administrator to reset your password.
+    </p>
 
   </div>
 
-
+  <!-- Supabase must load before admin.js so supabaseClient is available -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase-client.js"></script>
   <script src="admin.js"></script>
+
   <script>
-    /* Redirect if already logged in */
-    if (sessionStorage.getItem('inferno_admin_auth') === 'true') {
-      window.location.href = 'dashboard.html';
-    }
+    /* Redirect to dashboard if a valid session already exists */
+    (async () => {
+      try {
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (session) window.location.href = 'dashboard.html';
+      } catch (err) {
+        console.warn('[v0] Session check failed:', err);
+      }
+    })();
   </script>
 
 </body>
