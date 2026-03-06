@@ -467,37 +467,68 @@ async function loadServices() {
 async function loadCollections() {
   try {
     const cols = await window.fetchCollections();
-    console.log('[v0] Loaded', cols.length, 'collections from Supabase');
-    if (!cols || cols.length === 0) return;
+
+    console.log('[v0] Loaded collections:', cols);
+
+    if (!Array.isArray(cols) || cols.length === 0) {
+      console.log('[v0] No collections found');
+      return;
+    }
 
     const container = document.getElementById('collectionsContainer');
-    if (!container) return;
 
-    container.innerHTML = cols.map((c, idx) => {
+    if (!container) {
+      console.error('[v0] collectionsContainer not found in DOM');
+      return;
+    }
+
+    const safeEsc = typeof escFront === 'function'
+      ? escFront
+      : (value) => String(value ?? '');
+
+    const sortedCols = [...cols].sort(
+      (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
+    );
+
+    container.innerHTML = sortedCols.map((c, idx) => {
       const reversed = idx % 2 !== 0 ? 'featured__block--reverse' : '';
+
       return `
         <div class="featured__block ${reversed} reveal" style="margin-top: var(--sp-8);">
           <div class="featured__img">
-            ${c.image_url
-              ? `<img src="${escFront(c.image_url)}" alt="${escFront(c.title)}" />`
-              : `<div style="width:100%;height:100%;background:var(--grey-100);display:flex;align-items:center;justify-content:center;color:var(--grey-400);">No image</div>`}
+            ${
+              c.image_url
+                ? `<img src="${safeEsc(c.image_url)}" alt="${safeEsc(c.title)}" />`
+                : `<div style="width:100%;height:100%;background:var(--grey-100);display:flex;align-items:center;justify-content:center;color:var(--grey-400);">No image</div>`
+            }
           </div>
+
           <div class="featured__text">
-            <span class="section-label">${escFront(c.series_label || 'Series')}</span>
-            <h3 class="section-title">${escFront(c.title)}</h3>
-            ${c.description ? `<p>${escFront(c.description)}</p>` : ''}
-            ${c.tagline ? `<p>${escFront(c.tagline)}</p>` : ''}
-            <a href="${escFront(c.link_url || '#contact')}" class="link-ember">${escFront(c.link_label || 'See full series')}</a>
+            <span class="section-label">${safeEsc(c.series_label || 'Series')}</span>
+            <h3 class="section-title">${safeEsc(c.title || 'Untitled')}</h3>
+            ${c.description ? `<p>${safeEsc(c.description)}</p>` : ''}
+            ${c.tagline ? `<p>${safeEsc(c.tagline)}</p>` : ''}
+            <a href="${safeEsc(c.link_url || '#contact')}" class="link-ember">
+              ${safeEsc(c.link_label || 'See full series')}
+            </a>
           </div>
         </div>
       `;
     }).join('');
 
-    document.querySelectorAll('.featured__block.reveal').forEach(el => {
-      if (window.observer) window.observer.observe(el);
+    const blocks = container.querySelectorAll('.featured__block.reveal');
+
+    blocks.forEach((el) => {
+      if (window.observer) {
+        window.observer.observe(el);
+      } else {
+        el.classList.add('visible');
+      }
     });
+
+    console.log('[v0] Collections rendered successfully');
   } catch (err) {
-    console.error('[v0] loadCollections:', err);
+    console.error('[v0] loadCollections error:', err);
   }
 }
 
