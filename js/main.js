@@ -467,6 +467,7 @@ async function loadServices() {
 async function loadCollections() {
   try {
     const cols = await window.fetchCollections();
+    console.log('[v0] Loaded', cols.length, 'collections from Supabase');
     if (!cols || cols.length === 0) return;
 
     const container = document.getElementById('collectionsContainer');
