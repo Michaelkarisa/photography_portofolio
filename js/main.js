@@ -57,46 +57,51 @@ async function loadLogo() {
 async function loadPhotographerProfile() {
   try {
     const profile = await window.fetchPhotographerProfile();
-    
+
     if (profile) {
       const profileName     = document.getElementById('profileName');
       const profileBio      = document.getElementById('profileBio');
       const profileSocials  = document.getElementById('profileSocials');
       const profileLocation = document.getElementById('profileLocation');
-      
-      if (profileName)     profileName.textContent     = profile.name     || 'Photographer';
-      if (profileBio)      profileBio.textContent      = profile.bio      || 'Editorial photographer & videographer';
+
+      if (profileName)     profileName.textContent     = profile.name || 'Photographer';
+      if (profileBio)      profileBio.textContent      = profile.bio || 'Editorial photographer & videographer';
       if (profileLocation) profileLocation.textContent = profile.location || 'Location';
-      
+
       if (profileSocials) {
+
         const socials = [
-          { handle: profile.instagram_handle, platform: 'Instagram', icon: '📷' },
-          { handle: profile.twitter_handle,   platform: 'Twitter',   icon: '𝕏'  },
-          { handle: profile.linkedin_handle,  platform: 'LinkedIn',  icon: '💼' },
-          { handle: profile.portfolio_url,    platform: 'Portfolio', icon: '🌐' }
+          { url: profile.instagram_handle, icon: 'fab fa-instagram', label: 'Instagram' },
+          { url: profile.linkedin_handle,  icon: 'fab fa-linkedin-in', label: 'LinkedIn' },
+          { url: profile.twitter_handle,   icon: 'fab fa-x-twitter', label: 'Twitter/X' },
+          { url: profile.facebook_handle,  icon: 'fab fa-facebook-f', label: 'Facebook' },
+          { url: profile.portfolio_url,    icon: 'fas fa-globe', label: 'Portfolio' }
         ];
-        
+
         profileSocials.innerHTML = socials
-          .filter(s => s.handle)
-          .map(s => {
-            let url = s.handle;
-            if (s.platform === 'Instagram') url = `https://instagram.com/${s.handle}`;
-            if (s.platform === 'Twitter')   url = `https://twitter.com/${s.handle}`;
-            if (s.platform === 'LinkedIn')  url = `https://linkedin.com/in/${s.handle}`;
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="social-link" title="${s.platform}">${s.icon}</a>`;
-          })
+          .filter(s => s.url)
+          .map(s => `
+            <a href="${s.url}" 
+               class="social-link"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="${s.label}">
+              <i class="${s.icon}"></i>
+            </a>
+          `)
           .join('');
       }
-      
+
       const heroBadge = document.getElementById('heroBadge');
-      if (heroBadge && profile.services_offered && profile.services_offered.length > 0) {
+      if (heroBadge && profile.services_offered?.length) {
         heroBadge.textContent = `Available for: ${profile.services_offered.join(' • ')}`;
       }
-      
+
       console.log('[v0] Photographer profile loaded:', profile.name);
     } else {
       console.log('[v0] No photographer profile found - using defaults');
     }
+
   } catch (err) {
     console.error('[v0] Error loading photographer profile:', err);
   }
@@ -428,10 +433,10 @@ async function loadAboutSection(profile) {
     const socialLinksEl = document.querySelector('.contact__socials .social-links');
     if (socialLinksEl) {
       const links = [];
-      if (profile.instagram_handle) links.push(`<a href="https://instagram.com/${profile.instagram_handle.replace('@','')}" target="_blank" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`);
-      if (profile.linkedin_handle)  links.push(`<a href="https://linkedin.com/in/${profile.linkedin_handle}" target="_blank" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>`);
-      if (profile.twitter_handle)   links.push(`<a href="https://twitter.com/${profile.twitter_handle.replace('@','')}" target="_blank" class="social-link" aria-label="Twitter/X"><i class="fab fa-x-twitter"></i></a>`);
-      if (profile.facebook_handle)  links.push(`<a href="https://facebook.com/${profile.facebook_handle}" target="_blank" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`);
+      if (profile.instagram_handle) links.push(`<a href="${profile.instagram_handle.replace('@','')}" target="_blank" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>`);
+      if (profile.linkedin_handle)  links.push(`<a href="${profile.linkedin_handle}" target="_blank" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>`);
+      if (profile.twitter_handle)   links.push(`<a href="${profile.twitter_handle.replace('@','')}" target="_blank" class="social-link" aria-label="Twitter/X"><i class="fab fa-x-twitter"></i></a>`);
+      if (profile.facebook_handle)  links.push(`<a href="${profile.facebook_handle}" target="_blank" class="social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>`);
       socialLinksEl.innerHTML = links.join('');
     }
   }

@@ -334,8 +334,8 @@ ul {
 }
 
 .hero__profile-avatar {
-  width: 48px;
-  height: 48px;
+  width: 98px;
+  height: 98px;
   border-radius: 50%;
   background: var(--ember);
   color: var(--white);
