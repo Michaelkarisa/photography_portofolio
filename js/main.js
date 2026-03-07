@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadPhotographerProfile();
     await loadAboutSection(profile);
     await loadGallery();
-    await loadServices();
     await loadServiceSelect();
+    await loadService();
     await loadCollections();
     setupGalleryFilters();
   } catch (err) {
@@ -427,35 +427,78 @@ window.allGalleryData            = allGalleryData;
 /* ══════════════════════════════════════════
    SERVICES — render from Supabase
 ══════════════════════════════════════════ */
-async function loadServices() {
+
+async function loadService() {
   try {
     const services = await window.fetchServices();
-    if (!services || services.length === 0) return;
+    console.log('[v0] Loaded services:', services);
 
-    const grid = document.getElementById('servicesGrid');
-    if (!grid) return;
+    const servicesGrid = document.getElementById('servicesGrid');
+    if (!servicesGrid) {
+      console.error('[v0] servicesGrid not found');
+      return;
+    }
 
-    grid.innerHTML = services.map((s, idx) => {
-      const isFeatured = s.is_featured;
-      const items = Array.isArray(s.items_offered) ? s.items_offered : [];
-      const price = s.base_price ? `KES ${Number(s.base_price).toLocaleString()}` : '';
-      return `
-        <div class="service-card ${isFeatured ? 'service-card--featured' : ''} reveal">
-          <p class="service-card__type">${escFront(s.category || '')}</p>
-          <h3>${escFront(s.name)}</h3>
-          <p style="font-size:0.9rem;color:var(--grey-400);">${escFront(s.description || '')}</p>
-          <div class="service-card__price">${price} <span>starting</span></div>
-          <hr />
-          <ul>${items.map(it => `<li>${escFront(it)}</li>`).join('')}</ul>
-          ${s.turnaround ? `<p class="service-card__turnaround">⏱ ${escFront(s.turnaround)}</p>` : ''}
-          <a href="#contact" class="link-ember">Book this session</a>
+    servicesGrid.style.display = 'grid';
+    servicesGrid.style.opacity = '1';
+    servicesGrid.style.visibility = 'visible';
+
+    if (!Array.isArray(services) || services.length === 0) {
+      servicesGrid.innerHTML = `
+        <div class="service-card">
+          <h3>No services yet</h3>
+          <p>Services will appear here once added.</p>
         </div>
       `;
-    }).join('');
+      return;
+    }
 
-    document.querySelectorAll('.service-card.reveal').forEach(el => {
-      if (window.observer) window.observer.observe(el);
-    });
+    const sorted = [...services]
+      .filter(service => service.is_active !== false)
+      .sort((a, b) => (b.sort_order ?? 0)-(a.sort_order ?? 0));
+
+    const safe = (value) => String(value ?? '');
+
+    servicesGrid.innerHTML = sorted.map((service) => {
+  const isFeatured = service.is_featured ? 'service-card--featured' : '';
+  const price = service.base_price
+    ? `KES ${Number(service.base_price).toLocaleString()}`
+    : 'Custom Quote';
+
+  const items = Array.isArray(service.items_offered) && service.items_offered.length > 0
+    ? service.items_offered.map(item => `<li>${safe(item)}</li>`).join('')
+    : `<li>${safe(service.description || 'Professional photography service')}</li>`;
+
+  return `
+    <article class="service-card ${isFeatured}">
+      <div class="service-card__type">${safe(service.category || 'Photography')}</div>
+      <h3>${safe(service.name || 'Untitled Service')}</h3>
+
+      <div class="service-card__price">
+        ${price}
+        <span>${service.duration_hours ? ` / ${service.duration_hours} hr` : ''}</span>
+      </div>
+
+      <hr>
+
+      <ul>
+        ${items}
+      </ul>
+
+      ${
+        service.turnaround
+          ? `<div class="service-card__turnaround">Turnaround: ${safe(service.turnaround)}</div>`
+          : ''
+      }
+
+      <a href="#contact" class="link-ember">Book this session</a>
+    </article>
+  `;
+}).join('');
+
+    servicesGrid.closest('.reveal')?.classList.add('visible');
+
+    console.log('[v0] Services rendered successfully');
   } catch (err) {
     console.error('[v0] loadServices:', err);
   }
@@ -668,13 +711,28 @@ function loadContactDetails(profile) {
   }
 }
 
-/* ══════════════════════════════════════════
-   SERVICE SELECT — populate options from DB
-══════════════════════════════════════════ */
+document.addEventListener('click', e => {
+
+  if (!e.target.matches('.link-ember')) return;
+
+  const card = e.target.closest('.service-card');
+  if (!card) return;
+
+  const serviceName = card.querySelector('h3')?.textContent;
+
+  const select = document.getElementById('service');
+
+  if (select && serviceName) {
+    select.value = serviceName;
+  }
+
+});
+
 async function loadServiceSelect() {
   try {
     const services = await window.fetchServices();
     const select = document.getElementById('service');
+
     if (!select) return;
 
     select.innerHTML = '<option value="">Select a service...</option>';
@@ -682,8 +740,10 @@ async function loadServiceSelect() {
     if (services && services.length > 0) {
       services.forEach(s => {
         const opt = document.createElement('option');
+
         opt.value = s.name;
         opt.textContent = s.name + (s.base_price ? ` — KES ${Number(s.base_price).toLocaleString()}` : '');
+
         select.appendChild(opt);
       });
     }
@@ -693,6 +753,7 @@ async function loadServiceSelect() {
     other.value = 'other';
     other.textContent = 'Other / Custom';
     select.appendChild(other);
+
   } catch (err) {
     console.error('[v0] loadServiceSelect:', err);
   }
