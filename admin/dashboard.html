@@ -8,6 +8,9 @@
 </head>
 <body>
 
+  <!-- Toast notifications rendered here by admin.js -->
+  <div id="toast-container"></div>
+
   <div class="dashboard">
 
     <!-- ══════════════════════════════
@@ -61,6 +64,7 @@
         <a class="sidebar__link" data-panel="messages" onclick="switchPanel('messages')">
           <span class="sidebar__link-icon">✉</span>
           Messages
+          <span id="msgNavBadge" class="nav-badge" style="display:none;"></span>
         </a>
 
         <p class="sidebar__nav-label" style="margin-top: 8px;">System</p>
@@ -174,6 +178,19 @@
               <button class="btn btn--outline" onclick="switchPanel('collections')">+ Edit Collections</button>
               <button class="btn btn--outline" onclick="switchPanel('messages')">✉ View Messages</button>
               <a href="../index.html" target="_blank" class="btn btn--outline">↗ View Public Site</a>
+            </div>
+          </div>
+
+          <!-- Activity Log -->
+          <div class="card">
+            <div class="card__header">
+              <h3>Activity Log</h3>
+              <button class="btn btn--outline btn--sm" onclick="document.getElementById('activityFeed').innerHTML='<p style=\'color:var(--grey-400);font-size:0.8rem;text-align:center;padding:16px;\'>Cleared.</p>'">Clear</button>
+            </div>
+            <div class="card__body" style="padding:16px;">
+              <div class="activity-feed" id="activityFeed">
+                <p style="color:var(--grey-400);font-size:0.8rem;text-align:center;padding:16px;">Actions you take will appear here.</p>
+              </div>
             </div>
           </div>
 
@@ -353,6 +370,10 @@
                 </select>
               </div>
               <button class="btn btn--primary" id="uploadButton" onclick="uploadMediaItem()">Upload Media</button>
+              <!-- Progress bar -->
+              <div id="uploadProgressWrap" class="upload-progress" style="display:none;">
+                <div id="uploadProgressBar" class="upload-progress__bar"></div>
+              </div>
               <div id="uploadStatus" style="margin-top:12px; font-size:0.875rem;"></div>
             </div>
           </div>
@@ -362,7 +383,7 @@
               <h3>Uploaded Media</h3>
             </div>
             <div class="card__body" style="padding:0;">
-              <div id="mediaGallery" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; padding:16px;">
+              <div id="mediaGallery" class="media-grid">
                 <p style="color:var(--grey-400);">Loading...</p>
               </div>
             </div>
