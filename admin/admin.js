@@ -1028,5 +1028,20 @@ async function handleChangePassword() {
   }
 }
 
+function togglePassword() {
+  const password = document.getElementById("password");
+  const eyeOpen = document.getElementById("eyeOpen");
+  const eyeClosed = document.getElementById("eyeClosed");
+
+  if (password.type === "password") {
+    password.type = "text";
+    eyeOpen.style.display = "none";
+    eyeClosed.style.display = "block";
+  } else {
+    password.type = "password";
+    eyeOpen.style.display = "block";
+    eyeClosed.style.display = "none";
+  }
+}
 window.loadSettingsPanel    = loadSettingsPanel;
 window.handleChangePassword = handleChangePassword;

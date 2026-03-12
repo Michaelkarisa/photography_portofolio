@@ -36,17 +36,41 @@
         />
       </div>
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          placeholder="••••••••"
-          autocomplete="current-password"
-          required
-        />
-      </div>
+    <div class="form-group password-group">
+  <label for="password">Password</label>
+
+  <div class="password-wrapper">
+    <input
+      type="password"
+      id="password"
+      name="password"
+      placeholder="••••••••"
+      autocomplete="current-password"
+      required
+    />
+
+    <button type="button" class="password-toggle" onclick="togglePassword()">
+
+      <!-- Eye -->
+      <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-width="2"
+          d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+        <circle cx="12" cy="12" r="3" stroke-width="2"/>
+      </svg>
+
+      <!-- Eye Off -->
+      <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+        fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none;">
+        <path stroke-width="2"
+          d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12
+             a21.8 21.8 0 015.17-5.94M9.9 4.24A10.94 10.94 0 0112 5
+             c7 0 11 7 11 7a21.8 21.8 0 01-3.17 4.26M1 1l22 22"/>
+      </svg>
+
+    </button>
+  </div>
+</div>
 
       <button type="submit" class="btn btn--primary">Sign In →</button>
 

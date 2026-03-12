@@ -607,3 +607,27 @@ tr:hover td { background: var(--grey-50); }
   .content { padding: 16px; }
   .topbar { padding: 0 16px; }
 }
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+}
+
+.password-toggle:hover {
+  color: #fff;
+}
